@@ -15,7 +15,14 @@ export const NAV_ITEMS = Object.freeze([
   },
   { key: "delivery", label: labels.nav.delivery, isVisible: (can) => can("delivery.confirm") },
   { key: "audit", label: labels.nav.audit, isVisible: (can) => can("audit.read") },
+  {
+    key: "users",
+    label: labels.nav.users,
+    isVisible: (can) => can("user.read") || can("user.manage"),
+  },
+  { key: "catalogs", label: labels.nav.catalogs, isVisible: (can) => can("catalog.manage") },
   { key: "campaign", label: labels.nav.campaign, isVisible: (can) => can("catalog.manage") },
+  { key: "roles", label: labels.nav.roles, isVisible: (can) => can("role.manage") },
 ]);
 
 export function getVisibleNavItems(can) {

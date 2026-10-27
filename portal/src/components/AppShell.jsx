@@ -6,15 +6,18 @@ import { errorMessage, enumLabels, labels } from "../lib/labels.js";
 import { getVisibleNavItems } from "../lib/navigation.js";
 import AuditLog from "./AuditLog.jsx";
 import CampaignAdmin from "./CampaignAdmin.jsx";
+import CatalogsAdmin from "./CatalogsAdmin.jsx";
 import Dashboard from "./Dashboard.jsx";
 import DeliveryView from "./DeliveryView.jsx";
 import InscriptionForm from "./InscriptionForm.jsx";
 import InscriptionList from "./InscriptionList.jsx";
 import Notice from "./Notice.jsx";
+import RolesAdmin from "./RolesAdmin.jsx";
 import StatusScreen from "./StatusScreen.jsx";
+import UsersAdmin from "./UsersAdmin.jsx";
 
 // Vistas que no dependen de tener una campaña creada
-const CAMPAIGN_FREE_VIEWS = ["campaign", "audit"];
+const CAMPAIGN_FREE_VIEWS = ["campaign", "audit", "users", "catalogs", "roles"];
 
 function ActiveView({ view, onNavigate }) {
   switch (view) {
@@ -26,6 +29,12 @@ function ActiveView({ view, onNavigate }) {
       return <DeliveryView />;
     case "audit":
       return <AuditLog />;
+    case "users":
+      return <UsersAdmin />;
+    case "catalogs":
+      return <CatalogsAdmin />;
+    case "roles":
+      return <RolesAdmin />;
     case "campaign":
       return <CampaignAdmin />;
     default:

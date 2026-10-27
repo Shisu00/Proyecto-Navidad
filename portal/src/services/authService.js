@@ -1,5 +1,6 @@
 import { BusinessError, toBusinessError } from "../lib/errors.js";
 import { supabase } from "../lib/supabaseClient.js";
+import { parseFunctionError } from "./functionError.js";
 
 const INVALID_CREDENTIALS_CODE = "invalid_credentials";
 
@@ -18,21 +19,6 @@ export async function signIn({ email, password }) {
 export async function signOut() {
   const { error } = await supabase.auth.signOut();
   if (error) throw toBusinessError(error);
-}
-
-// La Edge Function responde con el formato de negocio estándar (code/details)
-async function parseFunctionError(error) {
-  const response = error?.context;
-  if (response && typeof response.json === "function") {
-    try {
-      const body = await response.json();
-      const code = body?.code ?? body?.error?.code;
-      if (code) return new BusinessError(code, body?.details ?? body?.error?.details ?? {});
-    } catch {
-      // cuerpo no JSON: se informa como error inesperado
-    }
-  }
-  return new BusinessError("UNKNOWN");
 }
 
 export async function changePassword({ email, newPassword, currentPassword }) {
