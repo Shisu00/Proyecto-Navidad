@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { buildSubmitInput, EMPTY_INSCRIPTION_VALUES, validateInscription } from "./inscriptionForm.js";
-import { getReviewActions, isReasonRequired } from "./inscriptionRules.js";
+import {
+  buildSubmitInput,
+  buildUpdateInput,
+  EMPTY_INSCRIPTION_VALUES,
+  hasChanges,
+  validateInscription,
+  valuesFromRow,
+} from "./inscriptionForm.js";
+import { canCorrectInscription, getReviewActions, isReasonRequired } from "./inscriptionRules.js";
 
 const validValues = {
   ...EMPTY_INSCRIPTION_VALUES,
@@ -65,5 +72,60 @@ describe("inscriptionRules", () => {
     expect(isReasonRequired("PENDING", "VALIDATE")).toBe(false);
     expect(isReasonRequired("OBSERVED", "VALIDATE")).toBe(true);
     expect(isReasonRequired("PENDING", "DISCARD")).toBe(true);
+  });
+});
+
+describe("corrección de inscripciones", () => {
+  const row = {
+    beneficiary_id_type: "RUT",
+    beneficiary_id_number: "123456785",
+    sex: "FEMALE",
+    birth_date: "2021-03-10",
+    guardian_full_name: "Ana Pérez",
+    guardian_id_number: "111111111",
+    guardian_email: null,
+    guardian_phone: null,
+  };
+
+  it("precarga el formulario con los datos guardados", () => {
+    const values = valuesFromRow(row);
+    expect(values.guardianEmail).toBe("");
+    expect(hasChanges(values, row)).toBe(false);
+  });
+
+  it("detecta cambios aunque cambie el formato del RUT", () => {
+    const values = { ...valuesFromRow(row), idNumber: "12.345.678-5" };
+    expect(hasChanges(values, row)).toBe(false);
+    expect(hasChanges({ ...values, guardianName: "Ana Pérez Soto" }, row)).toBe(true);
+    expect(hasChanges({ ...values, birthDate: "2020-01-01" }, row)).toBe(true);
+  });
+
+  it("arma la entrada normalizada con el motivo", () => {
+    const input = buildUpdateInput({
+      inscriptionId: "i1",
+      values: { ...valuesFromRow(row), guardianName: " Ana ", guardianEmail: "" },
+      reason: "Error de digitación",
+    });
+    expect(input).toMatchObject({
+      inscriptionId: "i1",
+      reason: "Error de digitación",
+      beneficiaryIdNumber: "123456785",
+      guardianFullName: "Ana",
+      guardianEmail: null,
+      duplicateJustification: null,
+    });
+  });
+});
+
+describe("canCorrectInscription", () => {
+  it("no permite corregir descartadas ni entregadas", () => {
+    expect(canCorrectInscription({ displayStatus: "DISCARDED", campaignStatus: "DELIVERY" })).toBe(false);
+    expect(canCorrectInscription({ displayStatus: "DELIVERED", campaignStatus: "DELIVERY" })).toBe(false);
+  });
+
+  it("depende del estado de la campaña", () => {
+    expect(canCorrectInscription({ displayStatus: "REGISTERED", campaignStatus: "PLANNED" })).toBe(false);
+    expect(canCorrectInscription({ displayStatus: "REGISTERED", campaignStatus: "CLOSED" })).toBe(false);
+    expect(canCorrectInscription({ displayStatus: "IN_REVIEW", campaignStatus: "REGISTRATION_OPEN" })).toBe(true);
   });
 });

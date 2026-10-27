@@ -9,7 +9,7 @@ function childDetail(row) {
   return labels.inscription.childDetail(sexLabel, enumLabels.ageRange[row.age_range]);
 }
 
-export default function InscriptionRow({ row, showCouncil, onDetail, onReview }) {
+export default function InscriptionRow({ row, showCouncil, onDetail, onCorrect, onReview }) {
   const isInReview = row.display_status === "IN_REVIEW";
 
   return (
@@ -51,6 +51,11 @@ export default function InscriptionRow({ row, showCouncil, onDetail, onReview })
         <button type="button" className="button button-small" onClick={() => onDetail(row)}>
           {labels.inscription.viewDetail}
         </button>
+        {onCorrect ? (
+          <button type="button" className="button button-small" onClick={() => onCorrect(row)}>
+            {labels.inscription.correct}
+          </button>
+        ) : null}
         {onReview ? (
           <button type="button" className="button button-small" onClick={() => onReview(row)}>
             {labels.inscription.review}

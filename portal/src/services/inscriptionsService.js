@@ -45,6 +45,22 @@ export async function submitInscription(input) {
   });
 }
 
+export async function updateInscription(input) {
+  return callRpc("update_inscription", {
+    p_inscription_id: input.inscriptionId,
+    p_reason: input.reason,
+    p_beneficiary_id_type: input.beneficiaryIdType,
+    p_beneficiary_id_number: input.beneficiaryIdNumber,
+    p_sex: input.sex,
+    p_birth_date: input.birthDate,
+    p_guardian_full_name: input.guardianFullName,
+    p_guardian_id_number: input.guardianIdNumber,
+    p_guardian_email: input.guardianEmail,
+    p_guardian_phone: input.guardianPhone,
+    p_duplicate_justification: input.duplicateJustification,
+  });
+}
+
 export async function resolveInscription({ inscriptionId, action, reason }) {
   return callRpc("resolve_inscription", {
     p_inscription_id: inscriptionId,

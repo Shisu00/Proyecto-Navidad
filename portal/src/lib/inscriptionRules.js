@@ -23,3 +23,10 @@ export function getReviewActions(status, hasActiveDelivery) {
 export function isReasonRequired(status, action) {
   return !(status === "PENDING" && action === REVIEW_ACTIONS.VALIDATE);
 }
+
+// Se puede corregir salvo que esté descartada, entregada o la campaña no admita cambios.
+// Es una ayuda de UI: el servidor decide (SPECS §8.3).
+export function canCorrectInscription({ displayStatus, campaignStatus }) {
+  if (displayStatus === "DISCARDED" || displayStatus === "DELIVERED") return false;
+  return campaignStatus !== undefined && campaignStatus !== "PLANNED" && campaignStatus !== "CLOSED";
+}

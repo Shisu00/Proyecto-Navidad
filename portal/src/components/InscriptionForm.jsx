@@ -2,22 +2,16 @@ import { useState } from "react";
 import { usePermissions } from "../hooks/useAccount.jsx";
 import { useCatalogs } from "../hooks/useCatalogs.jsx";
 import { useSubmitInscription } from "../hooks/useInscriptions.js";
-import { describeAge, todayIsoDate } from "../lib/age.js";
+import { todayIsoDate } from "../lib/age.js";
 import { canRegisterInscriptions } from "../lib/campaignRules.js";
-import { ID_TYPES } from "../lib/identification.js";
 import { EMPTY_INSCRIPTION_VALUES, validateInscription } from "../lib/inscriptionForm.js";
-import { enumLabels, errorMessage, labels, validationMessage } from "../lib/labels.js";
+import { errorMessage, labels, validationMessage } from "../lib/labels.js";
 import { newUuid } from "../lib/uuid.js";
-import ChoiceGroup from "./ChoiceGroup.jsx";
 import DuplicateJustificationDialog from "./DuplicateJustificationDialog.jsx";
 import Field from "./Field.jsx";
+import InscriptionFields from "./InscriptionFields.jsx";
 import Notice from "./Notice.jsx";
 
-const ID_TYPE_OPTIONS = Object.values(ID_TYPES).map((value) => ({
-  value,
-  label: enumLabels.idType[value],
-}));
-const SEX_OPTIONS = ["FEMALE", "MALE"].map((value) => ({ value, label: enumLabels.sex[value] }));
 const DUPLICATE_CODE = "DUPLICATE_REQUIRES_JUSTIFICATION";
 
 function successMessage(result) {
@@ -25,19 +19,6 @@ function successMessage(result) {
   if (status === "VALIDATED") return labels.inscription.successValidated;
   if (status === "OBSERVED") return labels.inscription.successObserved;
   return labels.inscription.successPending;
-}
-
-function AgePreview({ birthDate, cutoffDate }) {
-  const description = describeAge(birthDate, cutoffDate);
-  if (!description) return null;
-  if (description.range === null) {
-    return <Notice tone="warning">{labels.inscription.ageOutOfRange(description.age)}</Notice>;
-  }
-  return (
-    <p className="field-hint">
-      {labels.inscription.agePreview(description.age, enumLabels.ageRange[description.range])}
-    </p>
-  );
 }
 
 export default function InscriptionForm({ onViewList }) {
@@ -113,7 +94,6 @@ export default function InscriptionForm({ onViewList }) {
     );
   }
 
-  const isIpe = values.idType === ID_TYPES.IPE;
   const showFormError = errorCode && errorCode !== DUPLICATE_CODE && !duplicate;
   const serverReason = state.status === "error" ? state.error.details?.reason : null;
   const formErrorText =
@@ -156,104 +136,13 @@ export default function InscriptionForm({ onViewList }) {
           </fieldset>
         ) : null}
 
-        <fieldset className="form-section" disabled={!isOpen || isPending}>
-          <legend>{labels.inscription.childSection}</legend>
-          <ChoiceGroup
-            legend={labels.inscription.idType}
-            name="idType"
-            options={ID_TYPE_OPTIONS}
-            value={values.idType}
-            onChange={(value) => setField("idType", value)}
-          />
-          <Field
-            label={labels.inscription.idNumber}
-            hint={isIpe ? labels.inscription.idHintIpe : labels.inscription.idHintRut}
-            error={fieldError("idNumber")}
-          >
-            {(props) => (
-              <input
-                {...props}
-                type="text"
-                inputMode={isIpe ? "numeric" : "text"}
-                autoComplete="off"
-                value={values.idNumber}
-                onChange={(event) => setField("idNumber", event.target.value)}
-              />
-            )}
-          </Field>
-          <ChoiceGroup
-            legend={labels.inscription.sex}
-            name="sex"
-            options={SEX_OPTIONS}
-            value={values.sex}
-            onChange={(value) => setField("sex", value)}
-            error={fieldError("sex")}
-          />
-          <Field label={labels.inscription.birthDate} error={fieldError("birthDate")}>
-            {(props) => (
-              <input
-                {...props}
-                type="date"
-                max={todayIsoDate()}
-                value={values.birthDate}
-                onChange={(event) => setField("birthDate", event.target.value)}
-              />
-            )}
-          </Field>
-          <AgePreview birthDate={values.birthDate} cutoffDate={selectedCampaign?.age_cutoff_date} />
-        </fieldset>
-
-        <fieldset className="form-section" disabled={!isOpen || isPending}>
-          <legend>{labels.inscription.guardianSection}</legend>
-          <Field label={labels.inscription.guardianName} error={fieldError("guardianName")}>
-            {(props) => (
-              <input
-                {...props}
-                type="text"
-                autoComplete="off"
-                value={values.guardianName}
-                onChange={(event) => setField("guardianName", event.target.value)}
-              />
-            )}
-          </Field>
-          <Field
-            label={labels.inscription.guardianIdNumber}
-            hint={labels.inscription.idHintRut}
-            error={fieldError("guardianIdNumber")}
-          >
-            {(props) => (
-              <input
-                {...props}
-                type="text"
-                autoComplete="off"
-                value={values.guardianIdNumber}
-                onChange={(event) => setField("guardianIdNumber", event.target.value)}
-              />
-            )}
-          </Field>
-          <Field label={labels.inscription.guardianEmail} error={fieldError("guardianEmail")}>
-            {(props) => (
-              <input
-                {...props}
-                type="email"
-                autoComplete="off"
-                value={values.guardianEmail}
-                onChange={(event) => setField("guardianEmail", event.target.value)}
-              />
-            )}
-          </Field>
-          <Field label={labels.inscription.guardianPhone} error={fieldError("guardianPhone")}>
-            {(props) => (
-              <input
-                {...props}
-                type="tel"
-                autoComplete="off"
-                value={values.guardianPhone}
-                onChange={(event) => setField("guardianPhone", event.target.value)}
-              />
-            )}
-          </Field>
-        </fieldset>
+        <InscriptionFields
+          values={values}
+          fieldError={fieldError}
+          disabled={!isOpen || isPending}
+          cutoffDate={selectedCampaign?.age_cutoff_date}
+          onChange={setField}
+        />
 
         {showFormError ? <Notice tone="error">{formErrorText}</Notice> : null}
 

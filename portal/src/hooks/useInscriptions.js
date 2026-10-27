@@ -1,4 +1,4 @@
-import { buildSubmitInput } from "../lib/inscriptionForm.js";
+import { buildSubmitInput, buildUpdateInput } from "../lib/inscriptionForm.js";
 import * as inscriptionsService from "../services/inscriptionsService.js";
 import { useAsyncAction } from "./useAsyncAction.js";
 import { useAsyncData } from "./useAsyncData.js";
@@ -34,4 +34,10 @@ export function useSubmitInscription() {
 
 export function useResolveInscription() {
   return useAsyncAction(inscriptionsService.resolveInscription);
+}
+
+export function useUpdateInscription() {
+  return useAsyncAction((params) =>
+    inscriptionsService.updateInscription(buildUpdateInput(params)),
+  );
 }

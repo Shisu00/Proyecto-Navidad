@@ -60,3 +60,49 @@ export function buildSubmitInput({ operationId, campaignId, values, justificatio
     councilId: councilId ?? null,
   };
 }
+
+// Valores del formulario a partir de una fila de inscription_overview
+export function valuesFromRow(row) {
+  return {
+    idType: row.beneficiary_id_type,
+    idNumber: row.beneficiary_id_number,
+    sex: row.sex,
+    birthDate: row.birth_date,
+    guardianName: row.guardian_full_name,
+    guardianIdNumber: row.guardian_id_number,
+    guardianEmail: row.guardian_email ?? "",
+    guardianPhone: row.guardian_phone ?? "",
+  };
+}
+
+export function buildUpdateInput({ inscriptionId, values, reason, justification }) {
+  return {
+    inscriptionId,
+    reason,
+    beneficiaryIdType: values.idType,
+    beneficiaryIdNumber: normalizeIdNumber(values.idNumber),
+    sex: values.sex,
+    birthDate: values.birthDate,
+    guardianFullName: values.guardianName.trim(),
+    guardianIdNumber: normalizeRut(values.guardianIdNumber),
+    guardianEmail: values.guardianEmail.trim() || null,
+    guardianPhone: values.guardianPhone.trim() || null,
+    duplicateJustification: justification ?? null,
+  };
+}
+
+// Compara lo que el formulario enviaría con lo que ya está guardado
+export function hasChanges(values, row) {
+  const current = valuesFromRow(row);
+  const norm = (value) => value.trim();
+  return (
+    values.idType !== current.idType ||
+    normalizeIdNumber(values.idNumber) !== normalizeIdNumber(current.idNumber) ||
+    values.sex !== current.sex ||
+    values.birthDate !== current.birthDate ||
+    norm(values.guardianName) !== norm(current.guardianName) ||
+    normalizeRut(values.guardianIdNumber) !== normalizeRut(current.guardianIdNumber) ||
+    norm(values.guardianEmail) !== norm(current.guardianEmail) ||
+    norm(values.guardianPhone) !== norm(current.guardianPhone)
+  );
+}

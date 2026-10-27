@@ -3,10 +3,15 @@ import { usePermissions } from "../hooks/useAccount.jsx";
 import { useCatalogs } from "../hooks/useCatalogs.jsx";
 import { useInscriptionList, useResolveInscription } from "../hooks/useInscriptions.js";
 import { canReviewInscriptions } from "../lib/campaignRules.js";
-import { getReviewActions, isReasonRequired } from "../lib/inscriptionRules.js";
+import {
+  canCorrectInscription,
+  getReviewActions,
+  isReasonRequired,
+} from "../lib/inscriptionRules.js";
 import { enumLabels, errorMessage, labels } from "../lib/labels.js";
 import ChoiceGroup from "./ChoiceGroup.jsx";
 import IdSearch from "./IdSearch.jsx";
+import InscriptionEditDialog from "./InscriptionEditDialog.jsx";
 import InscriptionDetailDialog from "./InscriptionDetailDialog.jsx";
 import InscriptionRow from "./InscriptionRow.jsx";
 import Notice from "./Notice.jsx";
@@ -25,6 +30,8 @@ export default function InscriptionList() {
   const [page, setPage] = useState(0);
   const [reviewTarget, setReviewTarget] = useState(null);
   const [detailTarget, setDetailTarget] = useState(null);
+  const [editTarget, setEditTarget] = useState(null);
+  const [notice, setNotice] = useState(null);
 
   const { status: loadStatus, data, errorCode, reload } = useInscriptionList({
     campaignId: selectedCampaign?.id ?? null,
@@ -38,6 +45,7 @@ export default function InscriptionList() {
 
   const canReview = can("inscription.review") && canReviewInscriptions(selectedCampaign?.status);
   const showCouncil = can("inscription.read_all");
+  const mayCorrect = can("inscription.update_own") || can("inscription.update_any");
   const total = data?.total ?? 0;
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
@@ -54,6 +62,16 @@ export default function InscriptionList() {
   function handleSearch(normalized) {
     setSearch(normalized);
     setPage(0);
+  }
+
+  function handleCorrected(result) {
+    setEditTarget(null);
+    setNotice(
+      result.status === "OBSERVED"
+        ? labels.inscription.correctedReview
+        : labels.inscription.correctedOk,
+    );
+    reload();
   }
 
   function closeReview() {
@@ -103,6 +121,8 @@ export default function InscriptionList() {
         </div>
       </div>
 
+      {notice ? <Notice>{notice}</Notice> : null}
+
       {loadStatus === "error" ? (
         <div className="stack">
           <Notice tone="error">{errorMessage(errorCode)}</Notice>
@@ -137,6 +157,15 @@ export default function InscriptionList() {
                     row={row}
                     showCouncil={showCouncil}
                     onDetail={setDetailTarget}
+                    onCorrect={
+                      mayCorrect &&
+                      canCorrectInscription({
+                        displayStatus: row.display_status,
+                        campaignStatus: selectedCampaign?.status,
+                      })
+                        ? setEditTarget
+                        : null
+                    }
                     onReview={
                       canReview && getReviewActions(row.status, Boolean(row.delivery_id)).length > 0
                         ? openReview
@@ -164,6 +193,15 @@ export default function InscriptionList() {
           row={detailTarget}
           onClose={() => setDetailTarget(null)}
           onOpenRelated={setDetailTarget}
+        />
+      ) : null}
+
+      {editTarget ? (
+        <InscriptionEditDialog
+          row={editTarget}
+          cutoffDate={selectedCampaign?.age_cutoff_date}
+          onSaved={handleCorrected}
+          onCancel={() => setEditTarget(null)}
         />
       ) : null}
 
