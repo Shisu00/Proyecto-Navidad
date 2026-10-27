@@ -21,6 +21,9 @@ export default function DeliveryScanner({ onRun, onClose }) {
       <video ref={videoRef} className="scanner-video" playsInline muted />
       {state.status === "starting" ? <p>{labels.delivery.scanStarting}</p> : null}
       {state.status === "scanning" ? <p>{labels.delivery.scanning}</p> : null}
+      {state.hasUnreadableCode ? (
+        <Notice tone="warning">{labels.delivery.unreadableCode}</Notice>
+      ) : null}
       {state.status === "error" ? <Notice tone="warning">{errorText}</Notice> : null}
       <button type="button" className="button button-quiet" onClick={onClose}>
         {labels.delivery.stopScan}

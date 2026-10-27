@@ -11,6 +11,10 @@ describe("extractRun", () => {
     expect(extractRun("12345678-5 PEREZ GONZALEZ")).toBe("123456785");
   });
 
+  it("acepta el RUN sin guion si el dígito verificador es válido", () => {
+    expect(extractRun("123456785 PEREZ")).toBe("123456785");
+  });
+
   it("devuelve null con dígito verificador inválido o sin RUN", () => {
     expect(extractRun("RUN=12345678-9")).toBeNull();
     expect(extractRun("sin datos")).toBeNull();

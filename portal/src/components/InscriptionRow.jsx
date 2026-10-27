@@ -1,81 +1,62 @@
-import { formatDate, formatDateTime } from "../lib/format.js";
+import { formatDateTime } from "../lib/format.js";
 import { formatIdNumber } from "../lib/identification.js";
-import { getReviewActions } from "../lib/inscriptionRules.js";
 import { enumLabels, labels } from "../lib/labels.js";
 import StatusChip from "./StatusChip.jsx";
 
-export default function InscriptionRow({ row, canReview, onReview }) {
-  const actions = canReview ? getReviewActions(row.status, Boolean(row.delivery_id)) : [];
-  const rangeLabel = enumLabels.ageRange[row.age_range] ?? "";
+function childDetail(row) {
+  const sexLabel = enumLabels.sex[row.sex];
+  if (row.age_range === null) return labels.inscription.childOutOfRange(sexLabel, row.age_at_cutoff);
+  return labels.inscription.childDetail(sexLabel, enumLabels.ageRange[row.age_range]);
+}
+
+export default function InscriptionRow({ row, showCouncil, onDetail, onReview }) {
+  const isInReview = row.display_status === "IN_REVIEW";
 
   return (
-    <li className="record">
-      <div className="record-cell">
-        <p className="record-title">{formatIdNumber(row.beneficiary_id_number)}</p>
-        <p className="record-sub">
-          <span>{enumLabels.idType[row.beneficiary_id_type]}</span>
-          <span>{enumLabels.sex[row.sex]}</span>
-          <span>{rangeLabel}</span>
-        </p>
-        <p className="record-sub">
-          <span>{formatDate(row.birth_date)}</span>
-        </p>
-      </div>
+    <tr>
+      <td className="cell-child">
+        <p className="cell-title">{formatIdNumber(row.beneficiary_id_number)}</p>
+        <p className="cell-sub">{childDetail(row)}</p>
+      </td>
 
-      <div className="record-cell">
-        <p className="record-title">{row.guardian_full_name}</p>
-        <p className="record-sub">
-          <span>{formatIdNumber(row.guardian_id_number)}</span>
-        </p>
-        <p className="record-sub">
-          <span>{row.council_name}</span>
-          <span>{row.territory_name}</span>
-        </p>
-      </div>
+      <td className="cell-guardian">
+        <p className="cell-title">{row.guardian_full_name}</p>
+        <p className="cell-sub">{formatIdNumber(row.guardian_id_number)}</p>
+      </td>
 
-      <div className="record-cell">
+      {showCouncil ? (
+        <td className="cell-council">
+          <p className="cell-title">{row.council_name}</p>
+          <p className="cell-sub">{row.territory_name}</p>
+        </td>
+      ) : null}
+
+      <td className="cell-status">
         <StatusChip displayStatus={row.display_status} />
-        <p className="record-sub">
-          {row.has_observation ? <span className="flag">{labels.inscription.hasObservation}</span> : null}
-          {row.open_cases_count > 0 ? (
-            <span className="flag">{labels.inscription.openCases(row.open_cases_count)}</span>
-          ) : null}
-        </p>
-        <p className="record-sub">
-          <span>
-            {row.delivered_at
-              ? labels.inscription.deliveredAt(formatDateTime(row.delivered_at))
-              : labels.inscription.notDelivered}
-          </span>
-        </p>
-        <p className="record-sub">
-          <span>
-            {labels.inscription.registeredAt} {formatDateTime(row.created_at)}
-          </span>
-        </p>
-      </div>
+        {row.delivered_at ? (
+          <p className="cell-sub">{labels.inscription.deliveredAt(formatDateTime(row.delivered_at))}</p>
+        ) : null}
+        {isInReview && row.open_cases_count > 0 ? (
+          <p className="cell-sub">{labels.inscription.openCases(row.open_cases_count)}</p>
+        ) : null}
+        {row.duplicate_justification ? (
+          <details className="cell-note">
+            <summary>{labels.inscription.hasObservation}</summary>
+            <p>{row.duplicate_justification}</p>
+          </details>
+        ) : null}
+      </td>
 
-      {actions.length > 0 ? (
-        <div className="record-actions">
-          {actions.map((action) => (
-            <button
-              key={action}
-              type="button"
-              className="button button-small"
-              onClick={() => onReview(row, action)}
-            >
-              {labels.inscription.actions[action]}
-            </button>
-          ))}
-        </div>
-      ) : null}
-
-      {row.duplicate_justification ? (
-        <details className="record-note">
-          <summary>{labels.inscription.duplicateNote}</summary>
-          <p>{row.duplicate_justification}</p>
-        </details>
-      ) : null}
-    </li>
+      <td className="cell-actions">
+        <button type="button" className="button button-small" onClick={() => onDetail(row)}>
+          {labels.inscription.viewDetail}
+        </button>
+        {onReview ? (
+          <button type="button" className="button button-small" onClick={() => onReview(row)}>
+            {labels.inscription.review}
+          </button>
+        ) : null}
+      </td>
+    </tr>
   );
 }

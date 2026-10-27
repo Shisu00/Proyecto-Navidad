@@ -1,5 +1,4 @@
 import { isValidIdNumber, normalizeIdNumber, ID_TYPES } from "./identification.js";
-import { ageRangeForAge, calculateAge } from "./age.js";
 import { isValidRut, normalizeRut } from "./rut.js";
 
 export const EMPTY_INSCRIPTION_VALUES = Object.freeze({
@@ -18,7 +17,7 @@ const EMAIL_PATTERN = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 const PHONE_PATTERN = /^[0-9+()\s-]{7,20}$/;
 
 // Validación local de UX: el servidor vuelve a validar todo
-export function validateInscription(values, todayIso, cutoffDate = null) {
+export function validateInscription(values, todayIso) {
   const errors = {};
 
   if (!values.idNumber.trim()) errors.idNumber = "REQUIRED";
@@ -30,9 +29,6 @@ export function validateInscription(values, todayIso, cutoffDate = null) {
 
   if (!values.birthDate) errors.birthDate = "REQUIRED";
   else if (values.birthDate > todayIso) errors.birthDate = "FUTURE_DATE";
-  else if (cutoffDate && ageRangeForAge(calculateAge(values.birthDate, cutoffDate)) === null) {
-    errors.birthDate = "AGE_OUT_OF_RANGE";
-  }
 
   if (!values.guardianName.trim()) errors.guardianName = "REQUIRED";
 

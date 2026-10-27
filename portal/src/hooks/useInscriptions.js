@@ -7,6 +7,7 @@ export function useInscriptionList({
   campaignId,
   status,
   displayStatus,
+  hasObservation,
   search,
   page,
   pageSize,
@@ -17,11 +18,12 @@ export function useInscriptionList({
       campaignId,
       status,
       displayStatus,
+      hasObservation,
       search,
       page,
       pageSize,
     });
-  }, [campaignId, status, displayStatus, search, page, pageSize]);
+  }, [campaignId, status, displayStatus, hasObservation, search, page, pageSize]);
 }
 
 export function useSubmitInscription() {

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createDetector, extractRun } from "../lib/cedulaScanner.js";
 
-const IDLE_STATE = { status: "idle", errorCode: null };
+const IDLE_STATE = { status: "idle", errorCode: null, hasUnreadableCode: false };
 const SCAN_INTERVAL_MS = 300;
 
 // Abre la cámara trasera y lee códigos hasta encontrar un RUN válido
@@ -26,18 +26,22 @@ export function useCedulaScanner(onRun) {
   }, []);
 
   const start = useCallback(async () => {
-    setState({ status: "starting", errorCode: null });
+    setState({ ...IDLE_STATE, status: "starting" });
     try {
-      const detector = createDetector();
+      const detector = await createDetector();
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: "environment" } },
+        video: {
+          facingMode: { ideal: "environment" },
+          width: { ideal: 1920 },
+          height: { ideal: 1080 },
+        },
         audio: false,
       });
       streamRef.current = stream;
       const video = videoRef.current;
       video.srcObject = stream;
       await video.play();
-      setState({ status: "scanning", errorCode: null });
+      setState({ ...IDLE_STATE, status: "scanning" });
 
       timerRef.current = setInterval(async () => {
         try {
@@ -50,6 +54,8 @@ export function useCedulaScanner(onRun) {
               return;
             }
           }
+          // Se leyó un código, pero no trae un RUN válido (otro código o lectura dañada)
+          if (codes.length > 0) setState((previous) => ({ ...previous, hasUnreadableCode: true }));
         } catch {
           // El detector falla mientras la cámara aún no entrega imagen: se reintenta
         }
@@ -57,7 +63,11 @@ export function useCedulaScanner(onRun) {
     } catch (error) {
       stop();
       const isDenied = error?.name === "NotAllowedError";
-      setState({ status: "error", errorCode: isDenied ? "CAMERA_DENIED" : "CAMERA_UNAVAILABLE" });
+      setState({
+        ...IDLE_STATE,
+        status: "error",
+        errorCode: isDenied ? "CAMERA_DENIED" : "CAMERA_UNAVAILABLE",
+      });
     }
   }, [stop]);
 

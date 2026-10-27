@@ -13,9 +13,12 @@ const LIST_COLUMNS = [
   "beneficiary_id_number",
   "sex",
   "birth_date",
+  "age_at_cutoff",
   "age_range",
   "guardian_full_name",
   "guardian_id_number",
+  "guardian_email",
+  "guardian_phone",
   "duplicate_justification",
   "has_observation",
   "open_cases_count",
@@ -53,6 +56,7 @@ export async function listInscriptions({
   campaignId,
   status,
   displayStatus,
+  hasObservation,
   search,
   page,
   pageSize,
@@ -67,6 +71,7 @@ export async function listInscriptions({
 
   if (status) query = query.eq("status", status);
   if (displayStatus) query = query.eq("display_status", displayStatus);
+  if (hasObservation) query = query.eq("has_observation", true);
   if (search) {
     query = query.or(`beneficiary_id_number.ilike.${search}%,guardian_id_number.ilike.${search}%`);
   }

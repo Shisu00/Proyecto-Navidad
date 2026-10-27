@@ -1,12 +1,11 @@
 import { labels } from "../lib/labels.js";
 
-function ProgressRow({ name, validated, delivered, pendingDelivery, percent }) {
+function ProgressRow({ name, delivered, pendingDelivery, percent }) {
   return (
     <div className="progress-row">
       <span className="progress-name">{name}</span>
       <progress className="meter meter-small" value={percent} max={100} aria-label={`${name}: ${percent}%`} />
       <span className="progress-figures">
-        <span title={labels.dashboard.columnValidated}>{validated}</span>
         <span title={labels.dashboard.columnDelivered}>{delivered}</span>
         <span title={labels.dashboard.columnPending}>{pendingDelivery}</span>
       </span>
@@ -25,7 +24,6 @@ export default function DeliveryProgressTable({ groups }) {
         <span />
         <span />
         <span className="progress-figures">
-          <span>{labels.dashboard.columnValidated}</span>
           <span>{labels.dashboard.columnDelivered}</span>
           <span>{labels.dashboard.columnPending}</span>
         </span>

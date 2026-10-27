@@ -10,6 +10,7 @@ export default function ReasonDialog({
   description,
   reasonLabel,
   confirmLabel,
+  children,
   isRequired,
   isPending,
   errorCode,
@@ -50,6 +51,7 @@ export default function ReasonDialog({
       <form className="stack" onSubmit={handleSubmit} noValidate>
         <h2 id="dialog-title">{title}</h2>
         {description ? <p>{description}</p> : null}
+        {children}
 
         <Field
           label={reasonLabel}

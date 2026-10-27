@@ -31,7 +31,7 @@ function AgePreview({ birthDate, cutoffDate }) {
   const description = describeAge(birthDate, cutoffDate);
   if (!description) return null;
   if (description.range === null) {
-    return <Notice tone="error">{labels.inscription.ageOutOfRange(description.age)}</Notice>;
+    return <Notice tone="warning">{labels.inscription.ageOutOfRange(description.age)}</Notice>;
   }
   return (
     <p className="field-hint">
@@ -86,11 +86,7 @@ export default function InscriptionForm({ onViewList }) {
 
   function handleSubmit(event) {
     event.preventDefault();
-    const found = validateInscription(
-      values,
-      todayIsoDate(),
-      selectedCampaign?.age_cutoff_date,
-    );
+    const found = validateInscription(values, todayIsoDate());
     if (canChooseCouncil && !councilId) found.councilId = "REQUIRED";
     setErrors(found);
     if (Object.keys(found).length === 0) submit(null);
@@ -136,8 +132,8 @@ export default function InscriptionForm({ onViewList }) {
       <form className="stack-large" onSubmit={handleSubmit} noValidate>
         {canChooseCouncil ? (
           <fieldset className="form-section" disabled={!isOpen || isPending}>
-            <legend>{labels.inscription.council}</legend>
-            <Field label={labels.inscription.council} error={fieldError("councilId")}>
+            <legend>{labels.inscription.councilField}</legend>
+            <Field label={labels.inscription.councilField} error={fieldError("councilId")}>
               {(props) => (
                 <select
                   {...props}
