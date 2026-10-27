@@ -4,6 +4,8 @@ import { callRpc } from "./rpc.js";
 
 const LIST_COLUMNS = [
   "id",
+  "campaign_id",
+  "beneficiary_id",
   "status",
   "display_status",
   "created_at",
@@ -79,4 +81,17 @@ export async function listInscriptions({
   const { data, error, count } = await query;
   if (error) throw toBusinessError(error);
   return { rows: data ?? [], total: count ?? 0 };
+}
+
+// La RLS limita el resultado: una JJVV no ve inscripciones de otra (SPECS §8.2)
+export async function listRelatedInscriptions({ campaignId, beneficiaryId, excludeId }) {
+  const { data, error } = await supabase
+    .from("inscription_overview")
+    .select(LIST_COLUMNS)
+    .eq("campaign_id", campaignId)
+    .eq("beneficiary_id", beneficiaryId)
+    .neq("id", excludeId)
+    .order("created_at", { ascending: true });
+  if (error) throw toBusinessError(error);
+  return data ?? [];
 }

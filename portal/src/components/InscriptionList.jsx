@@ -10,6 +10,7 @@ import IdSearch from "./IdSearch.jsx";
 import InscriptionDetailDialog from "./InscriptionDetailDialog.jsx";
 import InscriptionRow from "./InscriptionRow.jsx";
 import Notice from "./Notice.jsx";
+import Pager from "./Pager.jsx";
 import ReasonDialog from "./ReasonDialog.jsx";
 
 const PAGE_SIZE = 25;
@@ -147,34 +148,23 @@ export default function InscriptionList() {
             </table>
           )}
 
-          {pages > 1 ? (
-            <nav className="pager" aria-label={labels.inscription.listTitle}>
-              <button
-                type="button"
-                className="button button-quiet"
-                disabled={page === 0}
-                onClick={() => setPage(page - 1)}
-              >
-                {labels.inscription.pagePrevious}
-              </button>
-              <span>{labels.inscription.pageOf(page + 1, pages)}</span>
-              <button
-                type="button"
-                className="button button-quiet"
-                disabled={page + 1 >= pages}
-                onClick={() => setPage(page + 1)}
-              >
-                {labels.inscription.pageNext}
-              </button>
-            </nav>
-          ) : null}
+          <Pager
+            page={page}
+            pages={pages}
+            label={labels.inscription.listTitle}
+            onPage={setPage}
+          />
         </>
       ) : loadStatus !== "error" ? (
         <p className="empty">{labels.app.loading}</p>
       ) : null}
 
       {detailTarget ? (
-        <InscriptionDetailDialog row={detailTarget} onClose={() => setDetailTarget(null)} />
+        <InscriptionDetailDialog
+          row={detailTarget}
+          onClose={() => setDetailTarget(null)}
+          onOpenRelated={setDetailTarget}
+        />
       ) : null}
 
       {reviewTarget ? (

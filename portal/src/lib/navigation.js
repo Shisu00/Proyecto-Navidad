@@ -14,6 +14,7 @@ export const NAV_ITEMS = Object.freeze([
     isVisible: (can) => can("inscription.create"),
   },
   { key: "delivery", label: labels.nav.delivery, isVisible: (can) => can("delivery.confirm") },
+  { key: "audit", label: labels.nav.audit, isVisible: (can) => can("audit.read") },
   { key: "campaign", label: labels.nav.campaign, isVisible: (can) => can("catalog.manage") },
 ]);
 

@@ -2,23 +2,17 @@ import { useEffect, useRef } from "react";
 import { formatDate, formatDateTime } from "../lib/format.js";
 import { formatIdNumber } from "../lib/identification.js";
 import { enumLabels, labels } from "../lib/labels.js";
+import DeliveryHistory from "./DeliveryHistory.jsx";
+import DetailItem from "./DetailItem.jsx";
+import RelatedInscriptions from "./RelatedInscriptions.jsx";
 import StatusChip from "./StatusChip.jsx";
-
-function Detail({ term, children }) {
-  return (
-    <div className="detail-item">
-      <dt>{term}</dt>
-      <dd>{children || labels.inscription.detailNotProvided}</dd>
-    </div>
-  );
-}
 
 function ageText(row) {
   if (row.age_range === null) return labels.inscription.detailOutOfRange(row.age_at_cutoff);
   return `${row.age_at_cutoff} · ${enumLabels.ageRange[row.age_range]}`;
 }
 
-export default function InscriptionDetailDialog({ row, onClose }) {
+export default function InscriptionDetailDialog({ row, onClose, onOpenRelated }) {
   const dialogRef = useRef(null);
 
   useEffect(() => {
@@ -48,42 +42,39 @@ export default function InscriptionDetailDialog({ row, onClose }) {
         <section className="stack" aria-labelledby="detail-child">
           <h3 id="detail-child">{labels.inscription.childSection}</h3>
           <dl className="detail-list">
-            <Detail term={enumLabels.idType[row.beneficiary_id_type]}>
+            <DetailItem term={enumLabels.idType[row.beneficiary_id_type]}>
               {formatIdNumber(row.beneficiary_id_number)}
-            </Detail>
-            <Detail term={labels.inscription.sex}>{enumLabels.sex[row.sex]}</Detail>
-            <Detail term={labels.inscription.birthDate}>{formatDate(row.birth_date)}</Detail>
-            <Detail term={labels.inscription.detailAge}>{ageText(row)}</Detail>
+            </DetailItem>
+            <DetailItem term={labels.inscription.sex}>{enumLabels.sex[row.sex]}</DetailItem>
+            <DetailItem term={labels.inscription.birthDate}>{formatDate(row.birth_date)}</DetailItem>
+            <DetailItem term={labels.inscription.detailAge}>{ageText(row)}</DetailItem>
           </dl>
         </section>
 
         <section className="stack" aria-labelledby="detail-guardian">
           <h3 id="detail-guardian">{labels.inscription.guardianSection}</h3>
           <dl className="detail-list">
-            <Detail term={labels.inscription.guardianName}>{row.guardian_full_name}</Detail>
-            <Detail term={labels.inscription.guardianIdNumber}>
+            <DetailItem term={labels.inscription.guardianName}>{row.guardian_full_name}</DetailItem>
+            <DetailItem term={labels.inscription.guardianIdNumber}>
               {formatIdNumber(row.guardian_id_number)}
-            </Detail>
-            <Detail term={labels.inscription.detailEmail}>{row.guardian_email}</Detail>
-            <Detail term={labels.inscription.detailPhone}>{row.guardian_phone}</Detail>
+            </DetailItem>
+            <DetailItem term={labels.inscription.detailEmail}>{row.guardian_email}</DetailItem>
+            <DetailItem term={labels.inscription.detailPhone}>{row.guardian_phone}</DetailItem>
           </dl>
         </section>
 
         <section className="stack" aria-labelledby="detail-registration">
           <h3 id="detail-registration">{labels.inscription.detailRegistration}</h3>
           <dl className="detail-list">
-            <Detail term={labels.inscription.columnCouncil}>{row.council_name}</Detail>
-            <Detail term={labels.inscription.detailTerritory}>{row.territory_name}</Detail>
-            <Detail term={labels.inscription.detailRegisteredAt}>
+            <DetailItem term={labels.inscription.columnCouncil}>{row.council_name}</DetailItem>
+            <DetailItem term={labels.inscription.detailTerritory}>{row.territory_name}</DetailItem>
+            <DetailItem term={labels.inscription.detailRegisteredAt}>
               {formatDateTime(row.created_at)}
-            </Detail>
-            <Detail term={labels.inscription.detailDelivery}>
-              {row.delivered_at
-                ? formatDateTime(row.delivered_at)
-                : labels.inscription.detailNotDelivered}
-            </Detail>
+            </DetailItem>
             {row.open_cases_count > 0 ? (
-              <Detail term={labels.inscription.detailOpenCases}>{row.open_cases_count}</Detail>
+              <DetailItem term={labels.inscription.detailOpenCases}>
+                {row.open_cases_count}
+              </DetailItem>
             ) : null}
           </dl>
         </section>
@@ -94,6 +85,9 @@ export default function InscriptionDetailDialog({ row, onClose }) {
             <p className="detail-observation">{row.duplicate_justification}</p>
           </section>
         ) : null}
+
+        <RelatedInscriptions row={row} onOpen={onOpenRelated} />
+        <DeliveryHistory inscriptionId={row.id} />
 
         <div className="dialog-actions">
           <button type="button" className="button button-primary" onClick={onClose}>

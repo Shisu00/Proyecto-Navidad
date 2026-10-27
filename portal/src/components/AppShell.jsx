@@ -4,6 +4,7 @@ import { useAuth } from "../hooks/useAuth.jsx";
 import { useCatalogs } from "../hooks/useCatalogs.jsx";
 import { errorMessage, enumLabels, labels } from "../lib/labels.js";
 import { getVisibleNavItems } from "../lib/navigation.js";
+import AuditLog from "./AuditLog.jsx";
 import CampaignAdmin from "./CampaignAdmin.jsx";
 import Dashboard from "./Dashboard.jsx";
 import DeliveryView from "./DeliveryView.jsx";
@@ -11,6 +12,9 @@ import InscriptionForm from "./InscriptionForm.jsx";
 import InscriptionList from "./InscriptionList.jsx";
 import Notice from "./Notice.jsx";
 import StatusScreen from "./StatusScreen.jsx";
+
+// Vistas que no dependen de tener una campaña creada
+const CAMPAIGN_FREE_VIEWS = ["campaign", "audit"];
 
 function ActiveView({ view, onNavigate }) {
   switch (view) {
@@ -20,6 +24,8 @@ function ActiveView({ view, onNavigate }) {
       return <InscriptionForm onViewList={() => onNavigate("inscriptions")} />;
     case "delivery":
       return <DeliveryView />;
+    case "audit":
+      return <AuditLog />;
     case "campaign":
       return <CampaignAdmin />;
     default:
@@ -99,7 +105,7 @@ export default function AppShell() {
       </header>
 
       <main className="shell-main">
-        {catalogs.campaigns.length === 0 && activeView !== "campaign" ? (
+        {catalogs.campaigns.length === 0 && !CAMPAIGN_FREE_VIEWS.includes(activeView) ? (
           <Notice>{labels.campaign.empty}</Notice>
         ) : (
           <ActiveView view={activeView} onNavigate={setView} />
