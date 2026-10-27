@@ -5,6 +5,7 @@ import { callRpc } from "./rpc.js";
 const LIST_COLUMNS = [
   "id",
   "status",
+  "display_status",
   "created_at",
   "council_name",
   "territory_name",
@@ -35,6 +36,7 @@ export async function submitInscription(input) {
     p_guardian_email: input.guardianEmail,
     p_guardian_phone: input.guardianPhone,
     p_duplicate_justification: input.duplicateJustification,
+    p_council_id: input.councilId,
   });
 }
 
@@ -47,7 +49,14 @@ export async function resolveInscription({ inscriptionId, action, reason }) {
 }
 
 // search llega normalizado (solo dígitos y K), por eso es seguro dentro del filtro
-export async function listInscriptions({ campaignId, status, search, page, pageSize }) {
+export async function listInscriptions({
+  campaignId,
+  status,
+  displayStatus,
+  search,
+  page,
+  pageSize,
+}) {
   const from = page * pageSize;
   let query = supabase
     .from("inscription_overview")
@@ -57,6 +66,7 @@ export async function listInscriptions({ campaignId, status, search, page, pageS
     .range(from, from + pageSize - 1);
 
   if (status) query = query.eq("status", status);
+  if (displayStatus) query = query.eq("display_status", displayStatus);
   if (search) {
     query = query.or(`beneficiary_id_number.ilike.${search}%,guardian_id_number.ilike.${search}%`);
   }

@@ -1,4 +1,5 @@
 import { isValidIdNumber, normalizeIdNumber, ID_TYPES } from "./identification.js";
+import { ageRangeForAge, calculateAge } from "./age.js";
 import { isValidRut, normalizeRut } from "./rut.js";
 
 export const EMPTY_INSCRIPTION_VALUES = Object.freeze({
@@ -17,7 +18,7 @@ const EMAIL_PATTERN = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 const PHONE_PATTERN = /^[0-9+()\s-]{7,20}$/;
 
 // Validación local de UX: el servidor vuelve a validar todo
-export function validateInscription(values, todayIso) {
+export function validateInscription(values, todayIso, cutoffDate = null) {
   const errors = {};
 
   if (!values.idNumber.trim()) errors.idNumber = "REQUIRED";
@@ -29,6 +30,9 @@ export function validateInscription(values, todayIso) {
 
   if (!values.birthDate) errors.birthDate = "REQUIRED";
   else if (values.birthDate > todayIso) errors.birthDate = "FUTURE_DATE";
+  else if (cutoffDate && ageRangeForAge(calculateAge(values.birthDate, cutoffDate)) === null) {
+    errors.birthDate = "AGE_OUT_OF_RANGE";
+  }
 
   if (!values.guardianName.trim()) errors.guardianName = "REQUIRED";
 
@@ -44,7 +48,7 @@ export function validateInscription(values, todayIso) {
   return errors;
 }
 
-export function buildSubmitInput({ operationId, campaignId, values, justification }) {
+export function buildSubmitInput({ operationId, campaignId, values, justification, councilId }) {
   return {
     clientOperationId: operationId,
     campaignId,
@@ -57,5 +61,6 @@ export function buildSubmitInput({ operationId, campaignId, values, justificatio
     guardianEmail: values.guardianEmail.trim() || null,
     guardianPhone: values.guardianPhone.trim() || null,
     duplicateJustification: justification ?? null,
+    councilId: councilId ?? null,
   };
 }

@@ -34,7 +34,7 @@ export default function InscriptionRow({ row, canReview, onReview }) {
       </div>
 
       <div className="record-cell">
-        <StatusChip status={row.status} />
+        <StatusChip displayStatus={row.display_status} />
         <p className="record-sub">
           {row.has_observation ? <span className="flag">{labels.inscription.hasObservation}</span> : null}
           {row.open_cases_count > 0 ? (

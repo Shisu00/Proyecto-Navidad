@@ -11,7 +11,7 @@ import Notice from "./Notice.jsx";
 import ReasonDialog from "./ReasonDialog.jsx";
 
 const PAGE_SIZE = 25;
-const STATUS_OPTIONS = ["PENDING", "OBSERVED", "VALIDATED", "DISCARDED"];
+const STATUS_OPTIONS = ["REGISTERED", "DUPLICATE_OBSERVED", "DELIVERED", "DISCARDED", "OBSERVED"];
 
 export default function InscriptionList() {
   const { selectedCampaign } = useCatalogs();
@@ -23,7 +23,7 @@ export default function InscriptionList() {
 
   const { status: loadStatus, data, errorCode, reload } = useInscriptionList({
     campaignId: selectedCampaign?.id ?? null,
-    status,
+    displayStatus: status,
     search,
     page,
     pageSize: PAGE_SIZE,
@@ -73,7 +73,7 @@ export default function InscriptionList() {
             <option value="">{labels.inscription.filterAll}</option>
             {STATUS_OPTIONS.map((option) => (
               <option key={option} value={option}>
-                {enumLabels.inscriptionStatus[option]}
+                {enumLabels.displayStatus[option]}
               </option>
             ))}
           </select>

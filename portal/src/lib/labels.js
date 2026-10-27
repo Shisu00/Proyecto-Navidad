@@ -122,7 +122,9 @@ export const labels = {
     submitting: "Guardando…",
     agePreview: (age, rangeLabel) => `Edad a la fecha de corte: ${age} años. Rango: ${rangeLabel}.`,
     ageOutOfRange: (age) =>
-      `Edad a la fecha de corte: ${age} años. Está fuera de 0 a 10 años: la inscripción quedará observada.`,
+      `Edad a la fecha de corte: ${age} años. Solo se inscriben niños de 0 a 10 años.`,
+    council: "Junta de Vecinos de la inscripción",
+    councilChoose: "Selecciona una Junta de Vecinos",
     successTitle: "Inscripción registrada",
     successValidated: "Quedó validada automáticamente.",
     successObserved: "Quedó observada y la Municipalidad la revisará.",
@@ -180,6 +182,8 @@ export const labels = {
     scanStarting: "Abriendo la cámara…",
     scanning: "Apunta la cámara al código de la cédula.",
     stopScan: "Cerrar cámara",
+    unreadableCode:
+      "Se leyó un código, pero no trae un RUN válido. Acerca la cédula, evita reflejos y prueba por el lado del código QR o de barras.",
     cameraDenied: "No hay permiso para usar la cámara. Ingresa el RUN a mano.",
     cameraUnavailable: "No pudimos abrir la cámara. Ingresa el RUN a mano.",
     scannedRun: (run) => `RUN leído de la cédula: ${run}`,
@@ -221,6 +225,9 @@ export const labels = {
     INVALID_EMAIL: "Ingresa un correo con formato válido.",
     INVALID_PHONE: "Ingresa un teléfono válido.",
     FUTURE_DATE: "La fecha no puede ser futura.",
+    AGE_OUT_OF_RANGE:
+      "El niño o niña debe tener entre 0 y 10 años a la fecha de corte de la campaña.",
+    COUNCIL_NOT_AVAILABLE: "La Junta de Vecinos no está disponible.",
     PASSWORD_TOO_SHORT: "La clave debe tener al menos 10 caracteres.",
     PASSWORD_MISMATCH: "Las claves no coinciden.",
     reasonTooShort: (min) => `Escribe al menos ${min} caracteres.`,
@@ -249,6 +256,13 @@ export const enumLabels = {
     AGE_8_10: "8 a 10 años",
   },
   sex: { FEMALE: "Niña", MALE: "Niño" },
+  displayStatus: {
+    REGISTERED: "Registrado",
+    DUPLICATE_OBSERVED: "Observado por duplicidad",
+    DELIVERED: "Entregado",
+    DISCARDED: "Descartado",
+    OBSERVED: "En revisión",
+  },
   idType: { RUT: "RUT", IPE: "IPE" },
   withdrawalType: { STANDARD: "Estándar", SUBSIDIARY: "Subsidiario" },
 };

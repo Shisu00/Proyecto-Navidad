@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { usePermissions } from "../hooks/useAccount.jsx";
 import { useCatalogs } from "../hooks/useCatalogs.jsx";
 import { useSubmitInscription } from "../hooks/useInscriptions.js";
 import { describeAge, todayIsoDate } from "../lib/age.js";
@@ -30,7 +31,7 @@ function AgePreview({ birthDate, cutoffDate }) {
   const description = describeAge(birthDate, cutoffDate);
   if (!description) return null;
   if (description.range === null) {
-    return <Notice tone="warning">{labels.inscription.ageOutOfRange(description.age)}</Notice>;
+    return <Notice tone="error">{labels.inscription.ageOutOfRange(description.age)}</Notice>;
   }
   return (
     <p className="field-hint">
@@ -40,7 +41,10 @@ function AgePreview({ birthDate, cutoffDate }) {
 }
 
 export default function InscriptionForm({ onViewList }) {
-  const { selectedCampaign } = useCatalogs();
+  const { selectedCampaign, councils, territoryNames } = useCatalogs();
+  const { can } = usePermissions();
+  const canChooseCouncil = can("inscription.create_any_council");
+  const [councilId, setCouncilId] = useState("");
   const { state, run } = useSubmitInscription();
   const [values, setValues] = useState(EMPTY_INSCRIPTION_VALUES);
   const [errors, setErrors] = useState({});
@@ -65,6 +69,7 @@ export default function InscriptionForm({ onViewList }) {
       campaignId: selectedCampaign.id,
       values,
       justification,
+      councilId: canChooseCouncil ? councilId : null,
     });
 
     if (result.status === "success") {
@@ -81,7 +86,12 @@ export default function InscriptionForm({ onViewList }) {
 
   function handleSubmit(event) {
     event.preventDefault();
-    const found = validateInscription(values, todayIsoDate());
+    const found = validateInscription(
+      values,
+      todayIsoDate(),
+      selectedCampaign?.age_cutoff_date,
+    );
+    if (canChooseCouncil && !councilId) found.councilId = "REQUIRED";
     setErrors(found);
     if (Object.keys(found).length === 0) submit(null);
   }
@@ -109,6 +119,12 @@ export default function InscriptionForm({ onViewList }) {
 
   const isIpe = values.idType === ID_TYPES.IPE;
   const showFormError = errorCode && errorCode !== DUPLICATE_CODE && !duplicate;
+  const serverReason = state.status === "error" ? state.error.details?.reason : null;
+  const formErrorText =
+    serverReason && labels.validation[serverReason]
+      ? labels.validation[serverReason]
+      : errorMessage(errorCode);
+  const activeCouncils = councils.filter((council) => council.is_active);
 
   return (
     <section className="panel" aria-labelledby="inscription-title">
@@ -118,6 +134,32 @@ export default function InscriptionForm({ onViewList }) {
       {!isOpen ? <Notice tone="warning">{labels.inscription.closedNotice}</Notice> : null}
 
       <form className="stack-large" onSubmit={handleSubmit} noValidate>
+        {canChooseCouncil ? (
+          <fieldset className="form-section" disabled={!isOpen || isPending}>
+            <legend>{labels.inscription.council}</legend>
+            <Field label={labels.inscription.council} error={fieldError("councilId")}>
+              {(props) => (
+                <select
+                  {...props}
+                  value={councilId}
+                  onChange={(event) => {
+                    setOperationId(newUuid());
+                    setCouncilId(event.target.value);
+                    setErrors((previous) => ({ ...previous, councilId: undefined }));
+                  }}
+                >
+                  <option value="">{labels.inscription.councilChoose}</option>
+                  {activeCouncils.map((council) => (
+                    <option key={council.id} value={council.id}>
+                      {territoryNames.get(council.territory_id)} · {council.name}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </Field>
+          </fieldset>
+        ) : null}
+
         <fieldset className="form-section" disabled={!isOpen || isPending}>
           <legend>{labels.inscription.childSection}</legend>
           <ChoiceGroup
@@ -217,7 +259,7 @@ export default function InscriptionForm({ onViewList }) {
           </Field>
         </fieldset>
 
-        {showFormError ? <Notice tone="error">{errorMessage(errorCode)}</Notice> : null}
+        {showFormError ? <Notice tone="error">{formErrorText}</Notice> : null}
 
         <button type="submit" className="button button-primary" disabled={!isOpen || isPending}>
           {isPending && !duplicate ? labels.inscription.submitting : labels.inscription.submit}

@@ -342,6 +342,21 @@ fieldset {
   background: var(--pine-wash);
 }
 
+.chip-registered {
+  color: var(--pine-dark);
+  background: var(--pine-wash);
+}
+
+.chip-duplicate_observed {
+  color: var(--amber);
+  background: var(--amber-wash);
+}
+
+.chip-delivered {
+  color: #fff;
+  background: var(--pine);
+}
+
 .chip-discarded {
   color: var(--ink-soft);
   background: var(--slate-wash);
