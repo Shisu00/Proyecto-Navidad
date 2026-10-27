@@ -1126,3 +1126,40 @@ fieldset {
     align-items: start;
   }
 }
+
+/* ---------- Filtros y exportación de auditoría ---------- */
+
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.filter-chip {
+  padding: 0.4rem 0.9rem;
+  font: inherit;
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+}
+
+.filter-chip[aria-pressed="true"] {
+  color: var(--pine-dark);
+  border-color: var(--pine-dark);
+  background: var(--pine-wash);
+}
+
+.audit-filters {
+  display: grid;
+  gap: 0.75rem;
+  align-items: end;
+}
+
+@media (min-width: 800px) {
+  .audit-filters {
+    grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  }
+}

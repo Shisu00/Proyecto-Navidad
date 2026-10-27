@@ -1,27 +1,18 @@
 const IGNORED_FIELDS = new Set(["updated_at"]);
 
-export const AUDIT_ACTIONS = Object.freeze([
-  "INSCRIPTIONS_INSERT",
-  "INSCRIPTION_DUPLICATE_JUSTIFIED",
-  "INSCRIPTION_AUTO_VALIDATED",
-  "INSCRIPTION_DUPLICATE_AUTO_VALIDATED",
-  "INSCRIPTION_AUTO_OBSERVED",
-  "INSCRIPTION_VALIDATED",
-  "INSCRIPTION_OBSERVED",
-  "INSCRIPTION_DISCARDED",
-  "INSCRIPTION_CORRECTED",
-  "DELIVERY_CONFIRMED",
-  "DELIVERY_VOIDED",
-  "USER_CREATED",
-  "USER_DEACTIVATED",
-  "USER_REACTIVATED",
-  "PASSWORD_RESET_ISSUED",
-  "PASSWORD_CHANGED",
-  "CAMPAIGN_STATUS_CHANGED",
-  "CATALOG_CHANGED",
-  "ROLE_CHANGED",
-  "ROLE_PERMISSIONS_CHANGED",
-]);
+export { KNOWN_ACTIONS as AUDIT_ACTIONS } from "./auditCategories.js";
+
+export const SYSTEM_ACTOR = "__SYSTEM__";
+
+// Rango de fechas del filtro (día calendario local) a instantes ISO: [desde, hasta)
+export function dateRangeToIso({ from, to }) {
+  const toIso = (day, offsetDays) => {
+    if (!day) return null;
+    const [year, month, date] = day.split("-").map(Number);
+    return new Date(year, month - 1, date + offsetDays).toISOString();
+  };
+  return { fromIso: toIso(from, 0), toIso: toIso(to, 1) };
+}
 
 // Solo los campos que cambiaron: un alta no tiene estado anterior con qué comparar
 export function changedFields(previousState, newState) {

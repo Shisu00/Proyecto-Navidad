@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useAuditLog } from "../hooks/useAuditLog.js";
 import { useCatalogs } from "../hooks/useCatalogs.jsx";
-import { AUDIT_ACTIONS } from "../lib/auditLog.js";
 import { errorMessage, labels } from "../lib/labels.js";
+import AuditExport from "./AuditExport.jsx";
+import AuditFilters, { EMPTY_AUDIT_FILTERS } from "./AuditFilters.jsx";
 import AuditRow from "./AuditRow.jsx";
 import Notice from "./Notice.jsx";
 import Pager from "./Pager.jsx";
@@ -11,15 +12,15 @@ const PAGE_SIZE = 30;
 
 export default function AuditLog() {
   const { councilNames } = useCatalogs();
-  const [action, setAction] = useState("");
+  const [filters, setFilters] = useState({ ...EMPTY_AUDIT_FILTERS });
   const [page, setPage] = useState(0);
-  const { status, data, errorCode, reload } = useAuditLog({ action, page, pageSize: PAGE_SIZE });
+  const { status, data, errorCode, reload } = useAuditLog({ filters, page, pageSize: PAGE_SIZE });
 
   const total = data?.total ?? 0;
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
-  function handleActionChange(event) {
-    setAction(event.target.value);
+  function handleFiltersChange(next) {
+    setFilters(next);
     setPage(0);
   }
 
@@ -30,17 +31,7 @@ export default function AuditLog() {
         <p>{labels.audit.intro}</p>
       </div>
 
-      <label className="field audit-filter">
-        <span className="field-label">{labels.audit.filterAction}</span>
-        <select value={action} onChange={handleActionChange}>
-          <option value="">{labels.audit.filterAll}</option>
-          {AUDIT_ACTIONS.map((option) => (
-            <option key={option} value={option}>
-              {labels.audit.actions[option]}
-            </option>
-          ))}
-        </select>
-      </label>
+      <AuditFilters filters={filters} onChange={handleFiltersChange} />
 
       {status === "error" ? (
         <div className="stack">
@@ -56,6 +47,7 @@ export default function AuditLog() {
           <p className="list-count" aria-live="polite">
             {labels.audit.total(total)}
           </p>
+          <AuditExport filters={filters} total={total} />
           {data.rows.length === 0 ? (
             <p className="empty">{labels.audit.empty}</p>
           ) : (
@@ -63,7 +55,6 @@ export default function AuditLog() {
               <thead>
                 <tr>
                   <th scope="col">{labels.audit.columnDate}</th>
-                  <th scope="col">{labels.audit.columnActor}</th>
                   <th scope="col">{labels.audit.columnAction}</th>
                   <th scope="col">{labels.audit.columnDetail}</th>
                 </tr>
