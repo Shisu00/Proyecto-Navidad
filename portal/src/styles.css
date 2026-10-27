@@ -14,8 +14,8 @@
   --slate-wash: #e6eaef;
   --radius: 6px;
   --focus: 0 0 0 3px rgba(29, 90, 75, 0.35);
-  font-family:
-    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-heading: "Google Sans", sans-serif;
+  --font-body: "Google Sans", sans-serif;
   color: var(--ink);
   line-height: 1.5;
 }
