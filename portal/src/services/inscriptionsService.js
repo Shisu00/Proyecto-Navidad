@@ -1,5 +1,6 @@
 import { supabase } from "../lib/supabaseClient.js";
-import { toBusinessError } from "../lib/errors.js";
+import { BusinessError, toBusinessError } from "../lib/errors.js";
+import { isNameSearch } from "../lib/searchQuery.js";
 import { callRpc } from "./rpc.js";
 
 const LIST_COLUMNS = [
@@ -69,13 +70,14 @@ export async function resolveInscription({ inscriptionId, action, reason }) {
   });
 }
 
-// search llega normalizado (solo dígitos y K), por eso es seguro dentro del filtro
+// search llega normalizado (solo dígitos y K, o minúsculas y espacios), por eso es seguro dentro del filtro
 export async function listInscriptions({
   campaignId,
   status,
   displayStatus,
   hasObservation,
   search,
+  pendingDeliveryFirst = false,
   page,
   pageSize,
 }) {
@@ -83,14 +85,26 @@ export async function listInscriptions({
   let query = supabase
     .from("inscription_overview")
     .select(LIST_COLUMNS, { count: "exact" })
-    .eq("campaign_id", campaignId)
+    .eq("campaign_id", campaignId);
+
+  // Sin entrega (delivered_at nulo) primero; luego las entregadas, la más reciente arriba
+  if (pendingDeliveryFirst) {
+    query = query.order("delivered_at", { ascending: false, nullsFirst: true });
+  }
+  query = query
     .order("created_at", { ascending: false })
+    .order("id", { ascending: false })
     .range(from, from + pageSize - 1);
 
   if (status) query = query.eq("status", status);
   if (displayStatus) query = query.eq("display_status", displayStatus);
   if (hasObservation) query = query.eq("has_observation", true);
-  if (search) {
+  if (search && isNameSearch(search)) {
+    // Cada palabra debe aparecer en el nombre del adulto, en cualquier orden
+    for (const word of search.split(" ")) {
+      query = query.ilike("guardian_search_name", `%${word}%`);
+    }
+  } else if (search) {
     query = query.or(`beneficiary_id_number.ilike.${search}%,guardian_id_number.ilike.${search}%`);
   }
 
@@ -109,5 +123,23 @@ export async function listRelatedInscriptions({ campaignId, beneficiaryId, exclu
     .neq("id", excludeId)
     .order("created_at", { ascending: true });
   if (error) throw toBusinessError(error);
+  return data ?? [];
+}
+
+export const MAX_BATCH_DELIVERY = 20;
+
+// Todos los regalos que le faltan a un adulto en la campaña (no solo los que muestra la búsqueda)
+export async function listPendingByGuardian({ campaignId, guardianIdNumber }) {
+  const { data, error } = await supabase
+    .from("inscription_overview")
+    .select(LIST_COLUMNS)
+    .eq("campaign_id", campaignId)
+    .eq("status", "VALIDATED")
+    .eq("guardian_id_number", guardianIdNumber)
+    .is("delivery_id", null)
+    .order("created_at", { ascending: true })
+    .limit(MAX_BATCH_DELIVERY + 1);
+  if (error) throw toBusinessError(error);
+  if ((data ?? []).length > MAX_BATCH_DELIVERY) throw new BusinessError("BATCH_TOO_LARGE");
   return data ?? [];
 }

@@ -6,7 +6,7 @@ export default function DeliveryRow({ row, onDeliver, onVoid }) {
   const isDelivered = Boolean(row.delivery_id);
 
   return (
-    <li className="record">
+    <li className={isDelivered ? "record record-done" : "record"}>
       <div className="record-cell">
         <p className="record-title">{formatIdNumber(row.beneficiary_id_number)}</p>
         <p className="record-sub">

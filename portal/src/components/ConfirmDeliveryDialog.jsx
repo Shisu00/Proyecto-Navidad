@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { formatIdNumber } from "../lib/identification.js";
 import { MIN_REASON_LENGTH } from "../lib/inscriptionRules.js";
-import { errorMessage, labels, validationMessage } from "../lib/labels.js";
+import { enumLabels, errorMessage, labels, validationMessage } from "../lib/labels.js";
 import { isValidRut, normalizeRut } from "../lib/rut.js";
 import ChoiceGroup from "./ChoiceGroup.jsx";
 import Field from "./Field.jsx";
@@ -13,7 +13,7 @@ const TYPE_OPTIONS = [
 ];
 
 export default function ConfirmDeliveryDialog({
-  row,
+  rows,
   scannedRun,
   isPending,
   errorCode,
@@ -27,6 +27,8 @@ export default function ConfirmDeliveryDialog({
   const [isResponsible, setIsResponsible] = useState(false);
   const [errors, setErrors] = useState({});
   const isSubsidiary = type === "SUBSIDIARY";
+  const [first] = rows;
+  const isMany = rows.length > 1;
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -51,7 +53,7 @@ export default function ConfirmDeliveryDialog({
 
     const normalized = hasWithdrawer ? normalizeRut(withdrawer) : null;
     onConfirm({
-      inscriptionId: row.id,
+      inscriptionIds: rows.map((item) => item.id),
       withdrawalType: type,
       withdrawerIdNumber: normalized,
       observation: isSubsidiary ? observation.trim() : null,
@@ -62,18 +64,35 @@ export default function ConfirmDeliveryDialog({
   }
 
   return (
-    <dialog ref={dialogRef} className="dialog" onCancel={(event) => {
-      event.preventDefault();
-      if (!isPending) onCancel();
-    }} aria-labelledby="confirm-title">
+    <dialog
+      ref={dialogRef}
+      className="dialog"
+      onCancel={(event) => {
+        event.preventDefault();
+        if (!isPending) onCancel();
+      }}
+      aria-labelledby="confirm-title"
+    >
       <form className="stack" onSubmit={handleSubmit} noValidate>
-        <h2 id="confirm-title">{labels.delivery.confirmTitle}</h2>
+        <h2 id="confirm-title">
+          {isMany ? labels.delivery.confirmManyTitle(rows.length) : labels.delivery.confirmTitle}
+        </h2>
         <p>
           {labels.delivery.expectedGuardian(
-            row.guardian_full_name,
-            formatIdNumber(row.guardian_id_number),
+            first.guardian_full_name,
+            formatIdNumber(first.guardian_id_number),
           )}
         </p>
+        {isMany ? (
+          <ul className="batch-list">
+            {rows.map((item) => (
+              <li key={item.id}>
+                {formatIdNumber(item.beneficiary_id_number)} · {enumLabels.sex[item.sex]} ·{" "}
+                {enumLabels.ageRange[item.age_range]}
+              </li>
+            ))}
+          </ul>
+        ) : null}
 
         <ChoiceGroup
           legend={labels.delivery.withdrawalType}
@@ -104,7 +123,9 @@ export default function ConfirmDeliveryDialog({
             <Field
               label={labels.delivery.observation}
               hint={labels.delivery.observationHint}
-              error={errors.observation ? labels.validation.reasonTooShort(MIN_REASON_LENGTH) : null}
+              error={
+                errors.observation ? labels.validation.reasonTooShort(MIN_REASON_LENGTH) : null
+              }
             >
               {(props) => (
                 <textarea
@@ -135,11 +156,20 @@ export default function ConfirmDeliveryDialog({
         {errorCode ? <Notice tone="error">{errorMessage(errorCode)}</Notice> : null}
 
         <div className="dialog-actions">
-          <button type="button" className="button button-quiet" onClick={onCancel} disabled={isPending}>
+          <button
+            type="button"
+            className="button button-quiet"
+            onClick={onCancel}
+            disabled={isPending}
+          >
             {labels.app.cancel}
           </button>
           <button type="submit" className="button button-primary" disabled={isPending}>
-            {isPending ? labels.dialog.pending : labels.delivery.confirm}
+            {isPending
+              ? labels.dialog.pending
+              : isMany
+                ? labels.delivery.confirmMany(rows.length)
+                : labels.delivery.confirm}
           </button>
         </div>
       </form>

@@ -151,8 +151,8 @@ export const labels = {
     filterStatus: "Estado",
     filterAll: "Todos",
     filterObservation: "Solo con observación",
-    searchLabel: "Buscar por identificación",
-    searchHint: "RUT, IPE o RUT del adulto. Mínimo 3 caracteres.",
+    searchLabel: "Buscar por identificación o nombre del adulto",
+    searchHint: "RUT, IPE, RUT del adulto o nombre del adulto. Mínimo 3 caracteres.",
     searchSubmit: "Buscar",
     searchClear: "Limpiar",
     total: (count) => (count === 1 ? "1 inscripción" : `${count} inscripciones`),
@@ -562,8 +562,9 @@ export const labels = {
     intro: "Identifica al adulto que retira y registra la entrega.",
     notOpen:
       "La campaña no está en etapa de entrega. Cuando la Municipalidad la abra, podrás registrar entregas aquí.",
-    searchLabel: "RUN del adulto o identificación del niño",
-    searchHint: "Escribe al menos 3 caracteres o escanea la cédula.",
+    searchLabel: "RUN o nombre del adulto, o identificación del niño",
+    searchHint:
+      "Escribe un RUN o un nombre (al menos 3 caracteres) y los resultados aparecen solos, o toma una foto del reverso de la cédula.",
     search: "Buscar",
     scan: "Escanear cédula",
     scanUnsupported:
@@ -595,12 +596,22 @@ export const labels = {
     cameraUnavailable: "No pudimos abrir la cámara. Ingresa el RUN a mano.",
     scannedRun: (run) => `RUN leído de la cédula: ${run}`,
     promptSearch: "Busca por RUN del adulto o identificación del niño para ver los regalos.",
-    noResults: "No hay inscripciones validadas de tu Junta de Vecinos con ese dato.",
+    noResults:
+      "No hay inscripciones validadas en tu Junta de Vecinos con ese dato. Puede estar inscrito en otra Junta o aún sin validar.",
+    noResultsAll: "No hay inscripciones validadas con ese dato.",
+    counter: (delivered, pending, isWholeCampaign) =>
+      `${isWholeCampaign ? "Campaña" : "Tu Junta de Vecinos"}: ${delivered} entregados · ${pending} pendientes de entrega`,
     deliver: "Entregar",
     void: "Anular entrega",
     pendingDelivery: "Pendiente de entrega",
     deliveredAt: (date) => `Entregado ${date}`,
     confirmTitle: "Registrar entrega",
+    confirmManyTitle: (count) => `Registrar ${count} entregas`,
+    confirmMany: (count) => `Confirmar ${count} entregas`,
+    batchSummary: (name, run, count) => `${name} (${run}) tiene ${count} regalos pendientes de entrega.`,
+    batchButton: "Entregar todos",
+    successDeliveredMany: (count, name) =>
+      `${count} entregas registradas a ${name}. Listo para la siguiente persona.`,
     expectedGuardian: (name, run) => `Adulto registrado: ${name} (${run})`,
     withdrawalType: "Tipo de retiro",
     standard: "Retira el adulto registrado",
@@ -619,6 +630,7 @@ export const labels = {
     voidReason: "Motivo",
     voidConfirm: "Anular entrega",
     successDelivered: "Entrega registrada.",
+    successDeliveredTo: (name) => `Entrega registrada a ${name}. Listo para la siguiente persona.`,
     successVoided: "Entrega anulada.",
   },
   dialog: {
@@ -703,6 +715,8 @@ const errorLabels = {
   ROLE_SYSTEM_IMMUTABLE: "Los roles del sistema no se pueden modificar.",
   ROLE_IN_USE: "El rol tiene usuarios activos y no se puede desactivar.",
   SELF_DEACTIVATION_NOT_ALLOWED: "No puedes desactivar tu propia cuenta.",
+  BATCH_TOO_LARGE:
+    "Este adulto tiene más de 20 regalos pendientes. Entrégalos de a uno.",
   EXPORT_TOO_LARGE:
     "El resultado supera los 100.000 registros. Acota las fechas o la categoría para exportar.",
   AUDIT_LOG_IMMUTABLE: "El registro de auditoría no se puede modificar.",

@@ -9,6 +9,7 @@ export function useInscriptionList({
   displayStatus,
   hasObservation,
   search,
+  pendingDeliveryFirst,
   page,
   pageSize,
 }) {
@@ -20,10 +21,11 @@ export function useInscriptionList({
       displayStatus,
       hasObservation,
       search,
+      pendingDeliveryFirst,
       page,
       pageSize,
     });
-  }, [campaignId, status, displayStatus, hasObservation, search, page, pageSize]);
+  }, [campaignId, status, displayStatus, hasObservation, search, pendingDeliveryFirst, page, pageSize]);
 }
 
 export function useSubmitInscription() {
@@ -40,4 +42,8 @@ export function useUpdateInscription() {
   return useAsyncAction((params) =>
     inscriptionsService.updateInscription(buildUpdateInput(params)),
   );
+}
+
+export function useLoadGuardianPending() {
+  return useAsyncAction(inscriptionsService.listPendingByGuardian);
 }

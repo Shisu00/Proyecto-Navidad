@@ -18,15 +18,19 @@ export function subscribeToDeliveries(campaignId, onChange) {
   };
 }
 
+// Una o varias inscripciones del mismo adulto con los mismos datos de retiro.
+// Con varias se usa confirm_deliveries, que las registra todas o ninguna.
 export async function confirmDelivery(input) {
-  return callRpc("confirm_delivery", {
-    p_inscription_id: input.inscriptionId,
+  const ids = input.inscriptionIds ?? [input.inscriptionId];
+  const common = {
     p_withdrawal_type: input.withdrawalType,
     p_withdrawer_id_number: input.withdrawerIdNumber,
     p_observation: input.observation,
     p_responsibility_confirmed: input.responsibilityConfirmed,
     p_scanned: input.scanned,
-  });
+  };
+  if (ids.length === 1) return callRpc("confirm_delivery", { p_inscription_id: ids[0], ...common });
+  return callRpc("confirm_deliveries", { p_inscription_ids: ids, ...common });
 }
 
 export async function voidDelivery({ deliveryId, reason }) {

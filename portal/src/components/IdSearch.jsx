@@ -1,17 +1,15 @@
 import { useState } from "react";
-import { normalizeIdNumber } from "../lib/identification.js";
 import { labels } from "../lib/labels.js";
+import { parseSearchText } from "../lib/searchQuery.js";
 import Field from "./Field.jsx";
-
-const MIN_SEARCH_LENGTH = 3;
 
 export default function IdSearch({ onSearch, hasActiveSearch }) {
   const [text, setText] = useState("");
 
   function handleSubmit(event) {
     event.preventDefault();
-    const normalized = normalizeIdNumber(text);
-    if (normalized.length >= MIN_SEARCH_LENGTH) onSearch(normalized);
+    const query = parseSearchText(text);
+    if (query) onSearch(query);
   }
 
   function handleClear() {
