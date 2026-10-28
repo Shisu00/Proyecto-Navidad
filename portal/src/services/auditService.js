@@ -2,14 +2,21 @@ import { BusinessError, toBusinessError } from "../lib/errors.js";
 import { supabase } from "../lib/supabaseClient.js";
 import { actionsInCategory, KNOWN_ACTIONS, OTHER_CATEGORY } from "../lib/auditCategories.js";
 import { dateRangeToIso, SYSTEM_ACTOR } from "../lib/auditLog.js";
+import { fetchAllRows, MAX_EXPORT_ROWS } from "./exportRows.js";
 import { callRpc } from "./rpc.js";
 import { fetchProfileNames } from "./usersService.js";
 
 const AUDIT_COLUMNS =
   "id, occurred_at, actor_user_id, action, entity_type, entity_id, previous_state, new_state, reason";
 
-export const EXPORT_BATCH_SIZE = 1000;
-export const MAX_EXPORT_ROWS = 100000;
+const EXPORT_COLUMNS = [
+  AUDIT_COLUMNS,
+  "beneficiary_run",
+  "previous_beneficiary_run",
+  "guardian_run",
+  "previous_guardian_run",
+  "withdrawer_run",
+].join(", ");
 
 // Filtros del visor: categoría, tipo de acción, rango de fechas y persona.
 // El listado y la exportación usan exactamente los mismos.
@@ -52,30 +59,17 @@ export async function listAuditLog({ filters, page, pageSize }) {
   return { rows: await withActorNames(data ?? []), total: count ?? 0 };
 }
 
-// Trae todo el resultado filtrado por tandas, paginando por id (no por posición):
-// si entran registros nuevos mientras se exporta, no se repiten ni se saltan filas.
+// Trae todo el resultado filtrado desde la vista con los RUN resueltos
 export async function exportAuditLog(filters, { total, onProgress }) {
   if (total > MAX_EXPORT_ROWS) throw new BusinessError("EXPORT_TOO_LARGE");
 
-  const rows = [];
-  let lastId = null;
-
-  for (;;) {
-    let query = applyFilters(supabase.from("audit_log").select(AUDIT_COLUMNS), filters)
-      .order("id", { ascending: false })
-      .limit(EXPORT_BATCH_SIZE);
-    if (lastId !== null) query = query.lt("id", lastId);
-
-    const { data, error } = await query;
-    if (error) throw toBusinessError(error);
-    // Sigue hasta una tanda vacía: el servidor puede limitar filas por consulta
-    if (!data || data.length === 0) break;
-
-    rows.push(...data);
-    lastId = data[data.length - 1].id;
-    onProgress?.(rows.length);
-    if (rows.length > MAX_EXPORT_ROWS) throw new BusinessError("EXPORT_TOO_LARGE");
-  }
+  const rows = await fetchAllRows({
+    build: () => applyFilters(supabase.from("audit_log_export").select(EXPORT_COLUMNS), filters),
+    keyColumn: "id",
+    descending: true,
+    maxRows: MAX_EXPORT_ROWS,
+    onProgress,
+  });
 
   const named = await withActorNames(rows);
   // Mismo orden que el visor: más reciente primero

@@ -26,3 +26,36 @@ export function downloadCsv(filename, csv) {
   link.remove();
   URL.revokeObjectURL(url);
 }
+
+const pad = (value) => String(value).padStart(2, "0");
+
+// Fecha y hora locales en columnas separadas: Excel (es-CL) reconoce dd-mm-aaaa como fecha
+export function splitLocalDateTime(isoTimestamp) {
+  if (!isoTimestamp) return { day: "", time: "" };
+  const date = new Date(isoTimestamp);
+  return {
+    day: `${pad(date.getDate())}-${pad(date.getMonth() + 1)}-${date.getFullYear()}`,
+    time: `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`,
+  };
+}
+
+// "2018-03-05" → "05-03-2018", sin pasar por Date para no depender de la zona horaria
+export function isoDateToCsv(isoDate) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(isoDate ?? ""));
+  return match ? `${match[3]}-${match[2]}-${match[1]}` : "";
+}
+
+export function slugify(text) {
+  return text
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+export function csvFilename(prefix, detail, now = new Date()) {
+  const stamp = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+  const parts = [prefix, detail ? slugify(detail) : "", stamp].filter(Boolean);
+  return `${parts.join("_")}.csv`;
+}

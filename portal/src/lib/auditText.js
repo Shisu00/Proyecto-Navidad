@@ -36,7 +36,7 @@ export function summaryText(entry, councilNames) {
       enumLabels.campaignStatus[summary.to] ?? summary.to,
     );
   }
-  if (entry.action === "AUDIT_EXPORTED") {
+  if (entry.action === "AUDIT_EXPORTED" || entry.action === "DATA_EXPORTED") {
     return labels.audit.exportSummary(entry.new_state?.row_count ?? 0);
   }
   return null;

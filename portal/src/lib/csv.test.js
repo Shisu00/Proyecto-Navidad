@@ -44,15 +44,37 @@ describe("exportación de auditoría", () => {
     reason: "Datos verificados",
   };
 
-  it("arma una fila con las 10 columnas y sin datos personales", () => {
-    const row = auditEntryToCsvRow(entry, { councilNames });
-    expect(row).toHaveLength(10);
+  it("arma una fila con las 13 columnas e incluye los RUN", () => {
+    const row = auditEntryToCsvRow(
+      { ...entry, beneficiary_run: "123456785", guardian_run: "111111111" },
+      { councilNames },
+    );
+    expect(row).toHaveLength(13);
+    expect(row[7]).toBe("12.345.678-5");
+    expect(row[8]).toBe("11.111.111-1");
+    expect(row[9]).toBe("");
     expect(row[2]).toBe("Ana Pérez");
     expect(row[3]).toBe("Inscripciones");
     expect(row[6]).toBe("11111111-2222-3333-4444-555555555555");
-    expect(row[7]).toBe("Datos verificados");
-    expect(row[9]).toContain("Estado:");
-    expect(row[9]).not.toContain("guardian");
+    expect(row[10]).toBe("Datos verificados");
+    expect(row[12]).toContain("Estado:");
+    expect(row[12]).not.toContain("guardian");
+  });
+
+  it("indica el RUN anterior cuando una corrección lo cambió", () => {
+    const row = auditEntryToCsvRow(
+      { ...entry, beneficiary_run: "123456785", previous_beneficiary_run: "111111111" },
+      { councilNames },
+    );
+    expect(row[7]).toBe("12.345.678-5 (antes: 11.111.111-1)");
+  });
+
+  it("incluye el RUN de quien retira en las entregas", () => {
+    const row = auditEntryToCsvRow(
+      { ...entry, action: "DELIVERY_CONFIRMED", entity_type: "deliveries", withdrawer_run: "111111111" },
+      { councilNames },
+    );
+    expect(row[9]).toBe("11.111.111-1");
   });
 
   it("nombra el archivo sin tildes ni espacios", () => {

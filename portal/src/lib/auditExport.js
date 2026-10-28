@@ -1,22 +1,23 @@
 import { auditReasonText } from "./auditLog.js";
 import { categoryOfAction } from "./auditCategories.js";
-import { toCsv } from "./csv.js";
+import { csvFilename, splitLocalDateTime, toCsv } from "./csv.js";
+import { formatIdNumber } from "./identification.js";
 import { actorText, changeLine, entryChanges, summaryText } from "./auditText.js";
 import { labels } from "./labels.js";
 
-const pad = (value) => String(value).padStart(2, "0");
+export { splitLocalDateTime };
 
-// Fecha y hora locales en columnas separadas: Excel (es-CL) reconoce dd-mm-aaaa como fecha
-export function splitLocalDateTime(isoTimestamp) {
-  const date = new Date(isoTimestamp);
-  return {
-    day: `${pad(date.getDate())}-${pad(date.getMonth() + 1)}-${date.getFullYear()}`,
-    time: `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`,
-  };
+// RUN/IPE tal como estaba en el registro; si el evento lo cambió, se indica el valor anterior
+function runText(current, previous) {
+  const now = current ? formatIdNumber(current) : "";
+  if (previous && previous !== current) {
+    return labels.audit.runChanged(now, formatIdNumber(previous));
+  }
+  return now;
 }
 
-// Sin estado completo: el CSV no lleva RUN ni datos personales de niños o adultos.
-// Solo el resumen, el motivo y los campos que cambiaron.
+// Sin el estado completo (JSON): resumen, motivo, campos que cambiaron y los RUN involucrados.
+// Los RUN vienen resueltos por la vista audit_log_export.
 export function auditEntryToCsvRow(entry, { councilNames }) {
   const { day, time } = splitLocalDateTime(entry.occurred_at);
   return [
@@ -27,6 +28,9 @@ export function auditEntryToCsvRow(entry, { councilNames }) {
     labels.audit.actions[entry.action] ?? entry.action,
     labels.audit.entities[entry.entity_type] ?? entry.entity_type,
     entry.entity_id ?? "",
+    runText(entry.beneficiary_run, entry.previous_beneficiary_run),
+    runText(entry.guardian_run, entry.previous_guardian_run),
+    runText(entry.withdrawer_run, null),
     auditReasonText(entry) ?? "",
     summaryText(entry, councilNames) ?? "",
     entryChanges(entry).map(changeLine).join(" | "),
@@ -41,12 +45,5 @@ export function buildAuditCsv(entries, context) {
 }
 
 export function auditExportFilename(categoryLabel, now = new Date()) {
-  const stamp = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
-  const slug = categoryLabel
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
-  return `auditoria_${slug}_${stamp}.csv`;
+  return csvFilename("auditoria", categoryLabel, now);
 }

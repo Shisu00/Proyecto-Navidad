@@ -12,12 +12,13 @@ import DeliveryView from "./DeliveryView.jsx";
 import InscriptionForm from "./InscriptionForm.jsx";
 import InscriptionList from "./InscriptionList.jsx";
 import Notice from "./Notice.jsx";
+import ReportsView from "./ReportsView.jsx";
 import RolesAdmin from "./RolesAdmin.jsx";
 import StatusScreen from "./StatusScreen.jsx";
 import UsersAdmin from "./UsersAdmin.jsx";
 
 // Vistas que no dependen de tener una campaña creada
-const CAMPAIGN_FREE_VIEWS = ["campaign", "audit", "users", "catalogs", "roles"];
+const CAMPAIGN_FREE_VIEWS = ["campaign", "audit", "reports", "users", "catalogs", "roles"];
 
 function ActiveView({ view, onNavigate }) {
   switch (view) {
@@ -29,6 +30,8 @@ function ActiveView({ view, onNavigate }) {
       return <DeliveryView />;
     case "audit":
       return <AuditLog />;
+    case "reports":
+      return <ReportsView />;
     case "users":
       return <UsersAdmin />;
     case "catalogs":
