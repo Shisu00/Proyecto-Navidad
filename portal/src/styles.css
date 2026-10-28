@@ -392,7 +392,7 @@ fieldset {
 .shell-tools,
 .shell-main {
   width: 100%;
-  max-width: 96rem;
+  max-width: 92rem;
   margin: 0 auto;
   padding-inline: 1rem;
 }
@@ -479,12 +479,12 @@ fieldset {
 /* Contenido con barra lateral opcional */
 .shell-body {
   width: 100%;
-  max-width: 96rem;
+  max-width: 92rem;
   margin: 0 auto;
 }
 
 .shell-body.has-side {
-  max-width: 96rem;
+  max-width: 92rem;
 }
 
 .shell-body .shell-main {
@@ -1958,5 +1958,140 @@ fieldset {
   .mobile-sheet-item[aria-current="page"] {
     color: #fff;
     background: var(--brand);
+  }
+}
+
+/* ---------- Encabezado de escritorio en dos capas (800 px o más) ---------- */
+
+@media (min-width: 800px) {
+  .shell-body,
+  .shell-body.has-side {
+    max-width: 96rem;
+  }
+
+  .shell-body.has-side {
+    padding-inline: 1.5rem;
+  }
+
+  /* Capa 1 (marca, campaña y cuenta) sobre violeta noche; capa 2 (secciones) sobre lavanda */
+  .shell-header {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-rows: 3.9rem 3.1rem;
+    column-gap: 1.25rem;
+    padding-inline: max(1.5rem, calc((100% - 96rem) / 2 + 1.5rem));
+    color: #fff;
+    background: var(--brand-wash);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .shell-header::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset: 0 0 auto 0;
+    height: 3.9rem;
+    background: var(--brand-dark);
+  }
+
+  /* Los bloques de siempre se reparten en la grilla del encabezado */
+  .shell-bar,
+  .shell-tools {
+    display: contents;
+  }
+
+  .shell-title {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: center;
+  }
+
+  .shell-title strong {
+    font-size: 1.05rem;
+  }
+
+  .shell-title span {
+    color: #cdbfe3;
+    opacity: 1;
+  }
+
+  .campaign-select {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: center;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0;
+    color: #cdbfe3;
+  }
+
+  .campaign-select select {
+    min-width: 15rem;
+    min-height: 2.4rem;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.09);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+  }
+
+  .campaign-select select option {
+    color: var(--ink);
+    background: #fff;
+  }
+
+  .shell-user {
+    grid-column: 3;
+    grid-row: 1;
+    align-self: center;
+    gap: 1rem;
+    padding-left: 1.25rem;
+    border-left: 1px solid rgba(255, 255, 255, 0.18);
+  }
+
+  .shell-user .button-ghost {
+    min-height: 2.25rem;
+    font-size: 0.88rem;
+    font-weight: 500;
+    border-color: rgba(255, 255, 255, 0.25);
+    border-radius: 8px;
+  }
+
+  .tabs {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    align-self: end;
+    gap: 0.15rem;
+  }
+
+  .tab {
+    min-height: 2.6rem;
+    padding: 0.5rem 1.15rem;
+    color: var(--ink-soft);
+    border-bottom: 0;
+    border-radius: 9px 9px 0 0;
+  }
+
+  .tab:hover {
+    color: var(--brand-dark);
+    background: rgba(255, 255, 255, 0.55);
+  }
+
+  /* La pestaña activa se funde con la página para que el contenido parezca nacer de ella */
+  .tab[aria-current="page"] {
+    position: relative;
+    margin-bottom: -1px;
+    color: var(--brand-dark);
+    background: var(--paper);
+    box-shadow:
+      0 -1px 0 var(--line),
+      -1px 0 0 var(--line),
+      1px 0 0 var(--line);
+  }
+
+  .tab:focus-visible {
+    box-shadow: var(--focus);
   }
 }
