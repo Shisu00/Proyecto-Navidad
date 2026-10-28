@@ -33,7 +33,12 @@ export default function InscriptionList() {
   const [editTarget, setEditTarget] = useState(null);
   const [notice, setNotice] = useState(null);
 
-  const { status: loadStatus, data, errorCode, reload } = useInscriptionList({
+  const {
+    status: loadStatus,
+    data,
+    errorCode,
+    reload,
+  } = useInscriptionList({
     campaignId: selectedCampaign?.id ?? null,
     displayStatus: status,
     hasObservation,
@@ -100,27 +105,6 @@ export default function InscriptionList() {
     <section className="stack-large" aria-labelledby="list-title">
       <h2 id="list-title">{labels.inscription.listTitle}</h2>
 
-      <div className="filters">
-        <IdSearch onSearch={handleSearch} hasActiveSearch={search !== ""} />
-        <div className="filter-group">
-          <label className="field">
-            <span className="field-label">{labels.inscription.filterStatus}</span>
-            <select value={status} onChange={handleStatusChange}>
-              <option value="">{labels.inscription.filterAll}</option>
-              {STATUS_OPTIONS.map((option) => (
-                <option key={option} value={option}>
-                  {enumLabels.displayStatus[option]}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="choice">
-            <input type="checkbox" checked={hasObservation} onChange={handleObservationChange} />
-            <span>{labels.inscription.filterObservation}</span>
-          </label>
-        </div>
-      </div>
-
       {notice ? <Notice>{notice}</Notice> : null}
 
       {loadStatus === "error" ? (
@@ -132,13 +116,35 @@ export default function InscriptionList() {
         </div>
       ) : null}
 
-      {data ? (
-        <>
-          <p className="list-count" aria-live="polite">
-            {labels.inscription.total(total)}
+      <div className="list-card">
+        <div className="list-bar">
+          <p className="list-total" aria-live="polite">
+            <span className="list-total-label">{labels.inscription.totalLabel}</span>
+            <strong>{data ? labels.inscription.total(total) : labels.app.loading}</strong>
           </p>
-          {data.rows.length === 0 ? (
-            <p className="empty">{labels.inscription.listEmpty}</p>
+          <div className="list-tools">
+            <label className="select-pill">
+              <span className="visually-hidden">{labels.inscription.filterStatus}</span>
+              <select value={status} onChange={handleStatusChange}>
+                <option value="">{labels.inscription.filterStatusAll}</option>
+                {STATUS_OPTIONS.map((option) => (
+                  <option key={option} value={option}>
+                    {enumLabels.displayStatus[option]}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="toggle-pill">
+              <input type="checkbox" checked={hasObservation} onChange={handleObservationChange} />
+              <span>{labels.inscription.filterObservation}</span>
+            </label>
+            <IdSearch onSearch={handleSearch} />
+          </div>
+        </div>
+
+        {data ? (
+          data.rows.length === 0 ? (
+            <p className="empty list-empty">{labels.inscription.listEmpty}</p>
           ) : (
             <table className="data-table">
               <thead>
@@ -175,17 +181,12 @@ export default function InscriptionList() {
                 ))}
               </tbody>
             </table>
-          )}
+          )
+        ) : null}
+      </div>
 
-          <Pager
-            page={page}
-            pages={pages}
-            label={labels.inscription.listTitle}
-            onPage={setPage}
-          />
-        </>
-      ) : loadStatus !== "error" ? (
-        <p className="empty">{labels.app.loading}</p>
+      {data ? (
+        <Pager page={page} pages={pages} label={labels.inscription.listTitle} onPage={setPage} />
       ) : null}
 
       {detailTarget ? (

@@ -13,9 +13,9 @@ import ConfirmDeliveryDialog from "./ConfirmDeliveryDialog.jsx";
 import DeliveryRow from "./DeliveryRow.jsx";
 import CedulaPhotoButton from "./CedulaPhotoButton.jsx";
 import DeliveryScanner from "./DeliveryScanner.jsx";
-import Field from "./Field.jsx";
 import Notice from "./Notice.jsx";
 import ReasonDialog from "./ReasonDialog.jsx";
+import SearchBox from "./SearchBox.jsx";
 
 const SEARCH_DELAY_MS = 400;
 const PAGE_SIZE = 20;
@@ -77,6 +77,13 @@ export default function DeliveryView() {
     if (isValidIdNumber("RUT", normalized) || isValidIdNumber("IPE", normalized)) {
       setText(formatIdNumber(normalized));
     }
+  }
+
+  function handleClear() {
+    setText("");
+    setMessage(null);
+    setScannedRun(null);
+    searchRef.current?.focus();
   }
 
   function handleSubmit(event) {
@@ -161,32 +168,26 @@ export default function DeliveryView() {
         </p>
       ) : null}
 
-      <form className="search" onSubmit={handleSubmit} role="search">
-        <Field label={labels.delivery.searchLabel} hint={labels.delivery.searchHint}>
-          {(props) => (
-            <input
-              {...props}
-              ref={searchRef}
-              type="search"
-              autoComplete="off"
-              inputMode="search"
-              disabled={!isDeliveryOpen}
-              value={text}
-              onChange={handleTextChange}
-              onBlur={handleBlur}
-            />
-          )}
-        </Field>
-        <div className="search-actions">
+      <form className="delivery-search" onSubmit={handleSubmit} role="search">
+        <SearchBox
+          inputRef={searchRef}
+          inputMode="search"
+          value={text}
+          onChange={handleTextChange}
+          onClear={handleClear}
+          onBlur={handleBlur}
+          label={labels.delivery.searchLabel}
+          placeholder={labels.delivery.searchPlaceholder}
+          describedBy="delivery-search-hint"
+          disabled={!isDeliveryOpen}
+        />
+        <div className="delivery-search-actions">
           <CedulaPhotoButton
             className="button button-primary"
             onRun={handleScanned}
             onBeforeCapture={() => setIsScanning(false)}
             disabled={!isDeliveryOpen}
           />
-          <button type="submit" className="button" disabled={!isDeliveryOpen}>
-            {labels.delivery.search}
-          </button>
           {SHOW_LIVE_SCANNER && isScannerSupported() ? (
             <button
               type="button"
@@ -199,6 +200,9 @@ export default function DeliveryView() {
           ) : null}
         </div>
       </form>
+      <p id="delivery-search-hint" className="field-hint delivery-hint">
+        {labels.delivery.searchHint}
+      </p>
 
       {SHOW_LIVE_SCANNER && isScanning ? (
         <DeliveryScanner onRun={handleScanned} onClose={() => setIsScanning(false)} />
@@ -229,7 +233,7 @@ export default function DeliveryView() {
                 </p>
                 <button
                   type="button"
-                  className="button button-primary"
+                  className="button button-gold"
                   disabled={groupLoader.state.status === "pending"}
                   onClick={() => startBatch(group)}
                 >

@@ -1,45 +1,46 @@
-import { useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { labels } from "../lib/labels.js";
 import { parseSearchText } from "../lib/searchQuery.js";
-import Field from "./Field.jsx";
+import SearchBox from "./SearchBox.jsx";
 
-export default function IdSearch({ onSearch, hasActiveSearch }) {
+const SEARCH_DELAY_MS = 400;
+
+// Busca mientras se escribe, sin una consulta por tecla. Si el texto queda corto o vacío,
+// la búsqueda se quita de inmediato.
+export default function IdSearch({ onSearch }) {
+  const hintId = useId();
   const [text, setText] = useState("");
+  const query = parseSearchText(text);
+  const onSearchRef = useRef(onSearch);
+  const lastRef = useRef("");
+  onSearchRef.current = onSearch;
 
-  function handleSubmit(event) {
-    event.preventDefault();
-    const query = parseSearchText(text);
-    if (query) onSearch(query);
-  }
+  useEffect(() => {
+    if (query === lastRef.current) return undefined;
+    // Quitar la búsqueda es inmediato; aplicar una nueva espera a que termine de escribir
+    const delay = query === "" ? 0 : SEARCH_DELAY_MS;
+    const timer = setTimeout(() => {
+      lastRef.current = query;
+      onSearchRef.current(query);
+    }, delay);
+    return () => clearTimeout(timer);
+  }, [query]);
 
-  function handleClear() {
-    setText("");
-    onSearch("");
-  }
+  const isTooShort = text.trim() !== "" && query === "";
 
   return (
-    <form className="search" onSubmit={handleSubmit} role="search">
-      <Field label={labels.inscription.searchLabel} hint={labels.inscription.searchHint}>
-        {(props) => (
-          <input
-            {...props}
-            type="search"
-            autoComplete="off"
-            value={text}
-            onChange={(event) => setText(event.target.value)}
-          />
-        )}
-      </Field>
-      <div className="search-actions">
-        <button type="submit" className="button button-primary">
-          {labels.inscription.searchSubmit}
-        </button>
-        {hasActiveSearch ? (
-          <button type="button" className="button button-quiet" onClick={handleClear}>
-            {labels.inscription.searchClear}
-          </button>
-        ) : null}
-      </div>
-    </form>
+    <div className="search-block" role="search">
+      <SearchBox
+        value={text}
+        onChange={(event) => setText(event.target.value)}
+        onClear={() => setText("")}
+        label={labels.inscription.searchLabel}
+        placeholder={labels.inscription.searchPlaceholder}
+        describedBy={hintId}
+      />
+      <p id={hintId} className={isTooShort ? "field-hint" : "visually-hidden"}>
+        {isTooShort ? labels.inscription.searchTooShort : labels.inscription.searchHint}
+      </p>
+    </div>
   );
 }

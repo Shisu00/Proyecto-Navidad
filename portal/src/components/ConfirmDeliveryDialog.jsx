@@ -164,7 +164,7 @@ export default function ConfirmDeliveryDialog({
           >
             {labels.app.cancel}
           </button>
-          <button type="submit" className="button button-primary" disabled={isPending}>
+          <button type="submit" className="button button-gold" disabled={isPending}>
             {isPending
               ? labels.dialog.pending
               : isMany

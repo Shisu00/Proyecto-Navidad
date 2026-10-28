@@ -1,11 +1,13 @@
 import { formatDateTime } from "../lib/format.js";
 import { formatIdNumber } from "../lib/identification.js";
 import { enumLabels, labels } from "../lib/labels.js";
+import IconButton from "./IconButton.jsx";
 import StatusChip from "./StatusChip.jsx";
 
 function childDetail(row) {
   const sexLabel = enumLabels.sex[row.sex];
-  if (row.age_range === null) return labels.inscription.childOutOfRange(sexLabel, row.age_at_cutoff);
+  if (row.age_range === null)
+    return labels.inscription.childOutOfRange(sexLabel, row.age_at_cutoff);
   return labels.inscription.childDetail(sexLabel, enumLabels.ageRange[row.age_range]);
 }
 
@@ -34,7 +36,9 @@ export default function InscriptionRow({ row, showCouncil, onDetail, onCorrect, 
       <td className="cell-status">
         <StatusChip displayStatus={row.display_status} />
         {row.delivered_at ? (
-          <p className="cell-sub">{labels.inscription.deliveredAt(formatDateTime(row.delivered_at))}</p>
+          <p className="cell-sub">
+            {labels.inscription.deliveredAt(formatDateTime(row.delivered_at))}
+          </p>
         ) : null}
         {isInReview && row.open_cases_count > 0 ? (
           <p className="cell-sub">{labels.inscription.openCases(row.open_cases_count)}</p>
@@ -48,18 +52,24 @@ export default function InscriptionRow({ row, showCouncil, onDetail, onCorrect, 
       </td>
 
       <td className="cell-actions">
-        <button type="button" className="button button-small" onClick={() => onDetail(row)}>
-          {labels.inscription.viewDetail}
-        </button>
+        <IconButton
+          icon="eye"
+          label={labels.inscription.viewDetail}
+          onClick={() => onDetail(row)}
+        />
         {onCorrect ? (
-          <button type="button" className="button button-small" onClick={() => onCorrect(row)}>
-            {labels.inscription.correct}
-          </button>
+          <IconButton
+            icon="pencil"
+            label={labels.inscription.correct}
+            onClick={() => onCorrect(row)}
+          />
         ) : null}
         {onReview ? (
-          <button type="button" className="button button-small" onClick={() => onReview(row)}>
-            {labels.inscription.review}
-          </button>
+          <IconButton
+            icon="review"
+            label={labels.inscription.review}
+            onClick={() => onReview(row)}
+          />
         ) : null}
       </td>
     </tr>
