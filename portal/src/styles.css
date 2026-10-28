@@ -1171,3 +1171,20 @@ fieldset {
   align-self: end;
   min-height: 2.5rem;
 }
+
+.bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 10rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid currentColor;
+  overflow-x: auto;
+}
+
+.bar {
+  flex: 1 0 6px;
+  min-height: 2px;
+  background: currentColor;
+  opacity: 0.75;
+}

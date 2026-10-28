@@ -15,6 +15,7 @@ export const NAV_ITEMS = Object.freeze([
   },
   { key: "delivery", label: labels.nav.delivery, isVisible: (can) => can("delivery.confirm") },
   { key: "audit", label: labels.nav.audit, isVisible: (can) => can("audit.read") },
+  { key: "analytics", label: labels.nav.analytics, isVisible: (can) => can("planning.read") },
   { key: "reports", label: labels.nav.reports, isVisible: (can) => can("data.export") },
   {
     key: "users",

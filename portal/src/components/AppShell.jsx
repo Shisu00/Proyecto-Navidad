@@ -4,6 +4,7 @@ import { useAuth } from "../hooks/useAuth.jsx";
 import { useCatalogs } from "../hooks/useCatalogs.jsx";
 import { errorMessage, enumLabels, labels } from "../lib/labels.js";
 import { getVisibleNavItems } from "../lib/navigation.js";
+import AnalyticsView from "./AnalyticsView.jsx";
 import AuditLog from "./AuditLog.jsx";
 import CampaignAdmin from "./CampaignAdmin.jsx";
 import CatalogsAdmin from "./CatalogsAdmin.jsx";
@@ -30,6 +31,8 @@ function ActiveView({ view, onNavigate }) {
       return <DeliveryView />;
     case "audit":
       return <AuditLog />;
+    case "analytics":
+      return <AnalyticsView />;
     case "reports":
       return <ReportsView />;
     case "users":
