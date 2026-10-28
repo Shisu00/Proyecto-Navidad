@@ -153,7 +153,9 @@ export default function InscriptionList() {
                   <th scope="col">{labels.inscription.columnGuardian}</th>
                   {showCouncil ? <th scope="col">{labels.inscription.columnCouncil}</th> : null}
                   <th scope="col">{labels.inscription.columnStatus}</th>
-                  <th scope="col">{labels.inscription.columnActions}</th>
+                  <th scope="col" className="th-actions">
+                    {labels.inscription.columnActions}
+                  </th>
                 </tr>
               </thead>
               <tbody>

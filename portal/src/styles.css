@@ -90,7 +90,7 @@ p {
   padding: 1.5rem;
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
 }
 
 .section {
@@ -1675,5 +1675,80 @@ fieldset {
     height: auto;
     overflow: visible;
     clip: auto;
+  }
+}
+
+/* ---------- Administración y auditoría dentro de tarjetas ---------- */
+
+.list-bar-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.list-filters {
+  padding: 1rem 1rem 0;
+}
+
+.list-filter {
+  padding: 0 1rem 0.9rem;
+}
+
+.list-card > .empty {
+  padding: 1.5rem 1rem;
+  border-top: 1px solid var(--line);
+}
+
+.list-card .filter-narrow {
+  max-width: none;
+}
+
+@media (min-width: 800px) {
+  .list-card .list-filter select {
+    max-width: 22rem;
+  }
+}
+
+@media (max-width: 799px) {
+  .list-tools-action {
+    flex: 1 1 100%;
+  }
+
+  .list-filters {
+    padding: 0 0 0.75rem;
+  }
+
+  .list-filter {
+    padding: 0 0 0.75rem;
+  }
+
+  .list-card > .empty {
+    border-top: 0;
+    padding-inline: 0;
+  }
+
+  .cell-user {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .cell-role {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (min-width: 800px) {
+  .data-table th.th-actions {
+    text-align: right;
+  }
+
+  .cell-actions > * + * {
+    margin-left: 0.4rem;
+  }
+
+  .list-card .audit-filters {
+    grid-template-columns: repeat(auto-fit, minmax(11rem, 14rem));
   }
 }

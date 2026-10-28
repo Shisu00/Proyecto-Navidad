@@ -48,11 +48,13 @@ export default function CatalogsAdmin() {
       </div>
 
       {toggle.state.status === "error" ? (
-        <Notice tone="error">{errorMessage(toggle.state.error.code, toggle.state.error.details)}</Notice>
+        <Notice tone="error">
+          {errorMessage(toggle.state.error.code, toggle.state.error.details)}
+        </Notice>
       ) : null}
 
-      <section className="stack" aria-labelledby="campaigns-title">
-        <div className="section-head">
+      <section className="list-card" aria-labelledby="campaigns-title">
+        <div className="list-bar list-bar-title">
           <h3 id="campaigns-title">{labels.admin.catalogs.campaigns}</h3>
           <button
             type="button"
@@ -71,7 +73,9 @@ export default function CatalogsAdmin() {
                 <th scope="col">{labels.admin.catalogs.campaignName}</th>
                 <th scope="col">{labels.admin.catalogs.campaignState}</th>
                 <th scope="col">{labels.admin.catalogs.campaignCutoff}</th>
-                <th scope="col">{labels.inscription.columnActions}</th>
+                <th scope="col" className="th-actions">
+                  {labels.inscription.columnActions}
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -105,8 +109,8 @@ export default function CatalogsAdmin() {
         )}
       </section>
 
-      <section className="stack" aria-labelledby="territories-title">
-        <div className="section-head">
+      <section className="list-card" aria-labelledby="territories-title">
+        <div className="list-bar list-bar-title">
           <h3 id="territories-title">{labels.admin.catalogs.territories}</h3>
           <button
             type="button"
@@ -121,7 +125,9 @@ export default function CatalogsAdmin() {
             <tr>
               <th scope="col">{labels.admin.catalogs.territoryName}</th>
               <th scope="col">{labels.admin.users.columnStatus}</th>
-              <th scope="col">{labels.inscription.columnActions}</th>
+              <th scope="col" className="th-actions">
+                {labels.inscription.columnActions}
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -147,7 +153,9 @@ export default function CatalogsAdmin() {
                     disabled={toggle.state.status === "pending"}
                     onClick={() => toggleActive(CATALOG_ENTITY.TERRITORY, territory)}
                   >
-                    {territory.is_active ? labels.admin.catalogs.deactivate : labels.admin.catalogs.activate}
+                    {territory.is_active
+                      ? labels.admin.catalogs.deactivate
+                      : labels.admin.catalogs.activate}
                   </button>
                 </td>
               </tr>
@@ -156,8 +164,8 @@ export default function CatalogsAdmin() {
         </table>
       </section>
 
-      <section className="stack" aria-labelledby="councils-title">
-        <div className="section-head">
+      <section className="list-card" aria-labelledby="councils-title">
+        <div className="list-bar list-bar-title">
           <h3 id="councils-title">{labels.admin.catalogs.councils}</h3>
           <button
             type="button"
@@ -168,9 +176,12 @@ export default function CatalogsAdmin() {
           </button>
         </div>
 
-        <label className="field filter-narrow">
+        <label className="field filter-narrow list-filter">
           <span className="field-label">{labels.admin.users.territory}</span>
-          <select value={territoryFilter} onChange={(event) => setTerritoryFilter(event.target.value)}>
+          <select
+            value={territoryFilter}
+            onChange={(event) => setTerritoryFilter(event.target.value)}
+          >
             <option value="">{labels.admin.all}</option>
             {territories.map((item) => (
               <option key={item.id} value={item.id}>
@@ -185,7 +196,9 @@ export default function CatalogsAdmin() {
             <tr>
               <th scope="col">{labels.admin.catalogs.councilName}</th>
               <th scope="col">{labels.admin.users.columnStatus}</th>
-              <th scope="col">{labels.inscription.columnActions}</th>
+              <th scope="col" className="th-actions">
+                {labels.inscription.columnActions}
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -212,7 +225,9 @@ export default function CatalogsAdmin() {
                     disabled={toggle.state.status === "pending"}
                     onClick={() => toggleActive(CATALOG_ENTITY.COUNCIL, council)}
                   >
-                    {council.is_active ? labels.admin.catalogs.deactivate : labels.admin.catalogs.activate}
+                    {council.is_active
+                      ? labels.admin.catalogs.deactivate
+                      : labels.admin.catalogs.activate}
                   </button>
                 </td>
               </tr>
@@ -222,10 +237,18 @@ export default function CatalogsAdmin() {
       </section>
 
       {dialog?.kind === "campaign" ? (
-        <CampaignDialog campaign={dialog.item} onSaved={handleSaved} onCancel={() => setDialog(null)} />
+        <CampaignDialog
+          campaign={dialog.item}
+          onSaved={handleSaved}
+          onCancel={() => setDialog(null)}
+        />
       ) : null}
       {dialog?.kind === "territory" ? (
-        <TerritoryDialog territory={dialog.item} onSaved={handleSaved} onCancel={() => setDialog(null)} />
+        <TerritoryDialog
+          territory={dialog.item}
+          onSaved={handleSaved}
+          onCancel={() => setDialog(null)}
+        />
       ) : null}
       {dialog?.kind === "council" ? (
         <CouncilDialog

@@ -31,8 +31,6 @@ export default function AuditLog() {
         <p>{labels.audit.intro}</p>
       </div>
 
-      <AuditFilters filters={filters} onChange={handleFiltersChange} />
-
       {status === "error" ? (
         <div className="stack">
           <Notice tone="error">{errorMessage(errorCode)}</Notice>
@@ -42,13 +40,21 @@ export default function AuditLog() {
         </div>
       ) : null}
 
-      {data ? (
-        <>
-          <p className="list-count" aria-live="polite">
-            {labels.audit.total(total)}
+      <div className="list-card">
+        <div className="list-filters">
+          <AuditFilters filters={filters} onChange={handleFiltersChange} />
+        </div>
+        <div className="list-bar">
+          <p className="list-total" aria-live="polite">
+            <span className="list-total-label">{labels.audit.totalLabel}</span>
+            <strong>{data ? labels.audit.total(total) : labels.app.loading}</strong>
           </p>
-          <AuditExport filters={filters} total={total} />
-          {data.rows.length === 0 ? (
+          <div className="list-tools">
+            <AuditExport filters={filters} total={total} />
+          </div>
+        </div>
+        {data ? (
+          data.rows.length === 0 ? (
             <p className="empty">{labels.audit.empty}</p>
           ) : (
             <table className="data-table">
@@ -65,11 +71,12 @@ export default function AuditLog() {
                 ))}
               </tbody>
             </table>
-          )}
-          <Pager page={page} pages={pages} label={labels.audit.title} onPage={setPage} />
-        </>
-      ) : status !== "error" ? (
-        <p className="empty">{labels.app.loading}</p>
+          )
+        ) : null}
+      </div>
+
+      {data ? (
+        <Pager page={page} pages={pages} label={labels.audit.title} onPage={setPage} />
       ) : null}
     </section>
   );

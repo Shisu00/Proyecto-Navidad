@@ -10,6 +10,7 @@ import * as adminService from "../services/adminService.js";
 import FormDialog from "./FormDialog.jsx";
 import Notice from "./Notice.jsx";
 import ReasonDialog from "./ReasonDialog.jsx";
+import SearchBox from "./SearchBox.jsx";
 import TempPasswordDialog from "./TempPasswordDialog.jsx";
 import UserCreateDialog from "./UserCreateDialog.jsx";
 import UserRow from "./UserRow.jsx";
@@ -94,50 +95,6 @@ export default function UsersAdmin() {
         <p>{labels.admin.users.intro}</p>
       </div>
 
-      <div className="toolbar">
-        <label className="field">
-          <span className="field-label">{labels.admin.users.search}</span>
-          <input
-            type="search"
-            value={search}
-            placeholder={labels.admin.users.searchPlaceholder}
-            onChange={(event) => setSearch(event.target.value)}
-          />
-        </label>
-        <label className="field">
-          <span className="field-label">{labels.admin.users.role}</span>
-          <select value={roleId} onChange={(event) => setRoleId(event.target.value)}>
-            <option value="">{labels.admin.all}</option>
-            {roles.map((role) => (
-              <option key={role.id} value={role.id}>
-                {role.name}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="field">
-          <span className="field-label">{labels.admin.users.columnStatus}</span>
-          <select value={status} onChange={(event) => setStatus(event.target.value)}>
-            <option value="">{labels.admin.all}</option>
-            {STATUS_OPTIONS.map((option) => (
-              <option key={option} value={option}>
-                {labels.admin.users.status[option]}
-              </option>
-            ))}
-          </select>
-        </label>
-        {canManage ? (
-          <button
-            type="button"
-            className="button button-primary toolbar-action"
-            disabled={!catalog.data}
-            onClick={() => setIsCreating(true)}
-          >
-            {labels.admin.users.create}
-          </button>
-        ) : null}
-      </div>
-
       {users.status === "error" ? (
         <div className="stack">
           <Notice tone="error">{errorMessage(users.errorCode)}</Notice>
@@ -147,12 +104,61 @@ export default function UsersAdmin() {
         </div>
       ) : null}
 
-      {users.data ? (
-        <>
-          <p className="list-count" aria-live="polite">
-            {labels.admin.users.total(rows.length)}
+      <div className="list-card">
+        <div className="list-bar">
+          <p className="list-total" aria-live="polite">
+            <span className="list-total-label">{labels.admin.users.totalLabel}</span>
+            <strong>
+              {users.data ? labels.admin.users.total(rows.length) : labels.app.loading}
+            </strong>
           </p>
-          {rows.length === 0 ? (
+          <div className="list-tools">
+            <label className="select-pill">
+              <span className="visually-hidden">{labels.admin.users.role}</span>
+              <select value={roleId} onChange={(event) => setRoleId(event.target.value)}>
+                <option value="">{labels.admin.users.roleAll}</option>
+                {roles.map((role) => (
+                  <option key={role.id} value={role.id}>
+                    {role.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="select-pill">
+              <span className="visually-hidden">{labels.admin.users.columnStatus}</span>
+              <select value={status} onChange={(event) => setStatus(event.target.value)}>
+                <option value="">{labels.admin.users.statusAll}</option>
+                {STATUS_OPTIONS.map((option) => (
+                  <option key={option} value={option}>
+                    {labels.admin.users.status[option]}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <div className="search-block">
+              <SearchBox
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                onClear={() => setSearch("")}
+                label={labels.admin.users.search}
+                placeholder={labels.admin.users.searchPlaceholder}
+              />
+            </div>
+            {canManage ? (
+              <button
+                type="button"
+                className="button button-primary list-tools-action"
+                disabled={!catalog.data}
+                onClick={() => setIsCreating(true)}
+              >
+                {labels.admin.users.create}
+              </button>
+            ) : null}
+          </div>
+        </div>
+
+        {users.data ? (
+          rows.length === 0 ? (
             <p className="empty">{labels.admin.users.empty}</p>
           ) : (
             <table className="data-table">
@@ -161,7 +167,9 @@ export default function UsersAdmin() {
                   <th scope="col">{labels.admin.users.columnUser}</th>
                   <th scope="col">{labels.admin.users.columnRole}</th>
                   <th scope="col">{labels.admin.users.columnStatus}</th>
-                  <th scope="col">{labels.inscription.columnActions}</th>
+                  <th scope="col" className="th-actions">
+                    {labels.inscription.columnActions}
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -179,11 +187,9 @@ export default function UsersAdmin() {
                 ))}
               </tbody>
             </table>
-          )}
-        </>
-      ) : users.status !== "error" ? (
-        <p className="empty">{labels.app.loading}</p>
-      ) : null}
+          )
+        ) : null}
+      </div>
 
       {isCreating ? (
         <UserCreateDialog
@@ -208,7 +214,9 @@ export default function UsersAdmin() {
       {toggleTarget ? (
         <ReasonDialog
           title={
-            toggleTarget.is_active ? labels.admin.users.deactivateTitle : labels.admin.users.reactivateTitle
+            toggleTarget.is_active
+              ? labels.admin.users.deactivateTitle
+              : labels.admin.users.reactivateTitle
           }
           description={
             toggleTarget.is_active
