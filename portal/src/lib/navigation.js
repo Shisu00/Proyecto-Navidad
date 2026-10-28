@@ -1,32 +1,44 @@
 import { labels } from "./labels.js";
 
-// La navegación se gobierna con permisos, nunca con nombres de rol
-export const NAV_ITEMS = Object.freeze([
+// La navegación se gobierna con permisos, nunca con nombres de rol.
+// Barra superior: el trabajo diario. Barra lateral: administración, análisis y control.
+export const TOP_NAV_ITEMS = Object.freeze([
   { key: "dashboard", label: labels.nav.dashboard, isVisible: () => true },
-  {
-    key: "inscriptions",
-    label: labels.nav.inscriptions,
-    isVisible: (can) => can("inscription.read_own_council") || can("inscription.read_all"),
-  },
   {
     key: "newInscription",
     label: labels.nav.newInscription,
     isVisible: (can) => can("inscription.create"),
   },
+  {
+    key: "inscriptions",
+    label: labels.nav.inscriptions,
+    isVisible: (can) => can("inscription.read_own_council") || can("inscription.read_all"),
+  },
   { key: "delivery", label: labels.nav.delivery, isVisible: (can) => can("delivery.confirm") },
-  { key: "audit", label: labels.nav.audit, isVisible: (can) => can("audit.read") },
-  { key: "analytics", label: labels.nav.analytics, isVisible: (can) => can("planning.read") },
-  { key: "reports", label: labels.nav.reports, isVisible: (can) => can("data.export") },
+]);
+
+export const SIDE_NAV_ITEMS = Object.freeze([
+  { key: "catalogs", label: labels.nav.catalogs, isVisible: (can) => can("catalog.manage") },
+  { key: "roles", label: labels.nav.roles, isVisible: (can) => can("role.manage") },
   {
     key: "users",
     label: labels.nav.users,
     isVisible: (can) => can("user.read") || can("user.manage"),
   },
-  { key: "catalogs", label: labels.nav.catalogs, isVisible: (can) => can("catalog.manage") },
   { key: "campaign", label: labels.nav.campaign, isVisible: (can) => can("catalog.manage") },
-  { key: "roles", label: labels.nav.roles, isVisible: (can) => can("role.manage") },
+  { key: "analytics", label: labels.nav.analytics, isVisible: (can) => can("planning.read") },
+  { key: "reports", label: labels.nav.reports, isVisible: (can) => can("data.export") },
+  { key: "audit", label: labels.nav.audit, isVisible: (can) => can("audit.read") },
 ]);
 
+export function getTopNavItems(can) {
+  return TOP_NAV_ITEMS.filter((item) => item.isVisible(can));
+}
+
+export function getSideNavItems(can) {
+  return SIDE_NAV_ITEMS.filter((item) => item.isVisible(can));
+}
+
 export function getVisibleNavItems(can) {
-  return NAV_ITEMS.filter((item) => item.isVisible(can));
+  return [...getTopNavItems(can), ...getSideNavItems(can)];
 }

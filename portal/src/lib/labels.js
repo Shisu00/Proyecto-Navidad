@@ -45,6 +45,7 @@ export const labels = {
   },
   nav: {
     main: "Secciones",
+    admin: "Administración",
     dashboard: "Resumen",
     inscriptions: "Inscripciones",
     newInscription: "Nueva inscripción",

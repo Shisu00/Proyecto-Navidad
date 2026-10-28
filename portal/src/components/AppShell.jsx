@@ -3,7 +3,7 @@ import { usePermissions } from "../hooks/useAccount.jsx";
 import { useAuth } from "../hooks/useAuth.jsx";
 import { useCatalogs } from "../hooks/useCatalogs.jsx";
 import { errorMessage, enumLabels, labels } from "../lib/labels.js";
-import { getVisibleNavItems } from "../lib/navigation.js";
+import { getSideNavItems, getTopNavItems, getVisibleNavItems } from "../lib/navigation.js";
 import AnalyticsView from "./AnalyticsView.jsx";
 import AuditLog from "./AuditLog.jsx";
 import CampaignAdmin from "./CampaignAdmin.jsx";
@@ -67,6 +67,8 @@ export default function AppShell() {
   }
   if (!catalogs.isReady) return <StatusScreen title={labels.app.loading} />;
 
+  const topItems = getTopNavItems(can);
+  const sideItems = getSideNavItems(can);
   const items = getVisibleNavItems(can);
   const activeView = items.some((item) => item.key === view) ? view : items[0].key;
 
@@ -88,7 +90,7 @@ export default function AppShell() {
 
         <div className="shell-tools">
           <nav aria-label={labels.nav.main} className="tabs">
-            {items.map((item) => (
+            {topItems.map((item) => (
               <button
                 key={item.key}
                 type="button"
@@ -119,13 +121,37 @@ export default function AppShell() {
         </div>
       </header>
 
-      <main className="shell-main">
-        {catalogs.campaigns.length === 0 && !CAMPAIGN_FREE_VIEWS.includes(activeView) ? (
-          <Notice>{labels.campaign.empty}</Notice>
-        ) : (
-          <ActiveView view={activeView} onNavigate={setView} />
-        )}
-      </main>
+      <div className={sideItems.length > 0 ? "shell-body has-side" : "shell-body"}>
+        {sideItems.length > 0 ? (
+          <aside className="side">
+            <nav aria-label={labels.nav.admin}>
+              <p className="side-title">{labels.nav.admin}</p>
+              <ul className="side-list">
+                {sideItems.map((item) => (
+                  <li key={item.key}>
+                    <button
+                      type="button"
+                      className="side-item"
+                      aria-current={item.key === activeView ? "page" : undefined}
+                      onClick={() => setView(item.key)}
+                    >
+                      {item.label}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          </aside>
+        ) : null}
+
+        <main className="shell-main">
+          {catalogs.campaigns.length === 0 && !CAMPAIGN_FREE_VIEWS.includes(activeView) ? (
+            <Notice>{labels.campaign.empty}</Notice>
+          ) : (
+            <ActiveView view={activeView} onNavigate={setView} />
+          )}
+        </main>
+      </div>
     </div>
   );
 }
