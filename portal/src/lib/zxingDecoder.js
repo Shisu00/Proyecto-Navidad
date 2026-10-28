@@ -69,5 +69,11 @@ export async function decodeWithZxing(source, { maxSide = 1920 } = {}) {
   } catch {
     // ZXing lanza una excepción cuando no encuentra nada: es el caso normal en cada cuadro vacío
     return [];
+  } finally {
+    // Libera la memoria del lienzo: en teléfonos con poca memoria el navegador cierra la página
+    if (canvas) {
+      canvas.width = 0;
+      canvas.height = 0;
+    }
   }
 }

@@ -572,6 +572,14 @@ export const labels = {
     scanning: "Apunta la cámara al código QR del reverso de la cédula.",
     scanTips:
       "Deja el código a unos 15 a 20 cm y quieto. Si se ve borroso, toca la imagen para enfocar o aleja un poco la cédula. Evita reflejos. Si no lee, usa Tomar foto.",
+    diagnostics: "Datos técnicos de la cámara",
+    diagnosticsText: (data) =>
+      [
+        `Imagen: ${data.resolution}`,
+        `Enfoque: ${data.focusMode || "sin dato"} (disponibles: ${data.focusModes.join(", ") || "ninguno"})`,
+        `Lector del navegador: ${data.nativeFormats.join(", ") || "no disponible"}`,
+        `Cuadros analizados: ${data.frames}`,
+      ].join(" · "),
     zoom: "Zoom",
     refocus: "Enfocar",
     torchOn: "Encender linterna",

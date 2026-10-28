@@ -64,6 +64,13 @@ export default function DeliveryScanner({ onRun, onClose }) {
         </div>
       ) : null}
 
+      {state.diagnostics ? (
+        <details className="field-hint">
+          <summary>{labels.delivery.diagnostics}</summary>
+          <p>{labels.delivery.diagnosticsText(state.diagnostics)}</p>
+        </details>
+      ) : null}
+
       {state.hasUnreadableCode ? (
         <Notice tone="warning">{labels.delivery.unreadableCode}</Notice>
       ) : null}

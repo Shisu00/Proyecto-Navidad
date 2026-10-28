@@ -122,7 +122,11 @@ export default function DeliveryView() {
               {labels.delivery.scan}
             </button>
           ) : null}
-          <CedulaPhotoButton onRun={handleScanned} disabled={!isDeliveryOpen} />
+          <CedulaPhotoButton
+            onRun={handleScanned}
+            onBeforeCapture={() => setIsScanning(false)}
+            disabled={!isDeliveryOpen}
+          />
         </div>
       </form>
 

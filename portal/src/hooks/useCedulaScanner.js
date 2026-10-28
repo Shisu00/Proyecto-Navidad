@@ -7,6 +7,7 @@ const IDLE_STATE = {
   errorCode: null,
   hasUnreadableCode: false,
   controls: NO_CONTROLS,
+  diagnostics: null,
 };
 const SCAN_INTERVAL_MS = 350;
 const REFOCUS_SETTLE_MS = 1200;
@@ -85,7 +86,20 @@ export function useCedulaScanner(onRun) {
       const video = videoRef.current;
       video.srcObject = stream;
       await video.play();
-      setState({ ...IDLE_STATE, status: "scanning", controls: readControls(track) });
+      const settings = track.getSettings?.() ?? {};
+      const focusModes = track.getCapabilities?.().focusMode ?? [];
+      setState({
+        ...IDLE_STATE,
+        status: "scanning",
+        controls: readControls(track),
+        diagnostics: {
+          resolution: `${video.videoWidth}x${video.videoHeight}`,
+          focusMode: settings.focusMode ?? "",
+          focusModes,
+          nativeFormats: reader.nativeFormats,
+          frames: 0,
+        },
+      });
 
       let busy = false;
       let tick = 0;
@@ -93,6 +107,13 @@ export function useCedulaScanner(onRun) {
         if (busy) return;
         busy = true;
         tick += 1;
+        if (tick % 5 === 0) {
+          setState((previous) =>
+            previous.diagnostics
+              ? { ...previous, diagnostics: { ...previous.diagnostics, frames: tick } }
+              : previous,
+          );
+        }
         try {
           // El respaldo (ZXing) pesa más: se usa cada dos cuadros
           const values = await reader.read(video, { useFallback: tick % 2 === 0 });

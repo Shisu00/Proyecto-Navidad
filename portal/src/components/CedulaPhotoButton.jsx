@@ -4,7 +4,7 @@ import { labels } from "../lib/labels.js";
 import Notice from "./Notice.jsx";
 
 // Abre la cámara del teléfono, que enfoca y usa flash mejor que la vista en vivo del navegador
-export default function CedulaPhotoButton({ onRun, disabled }) {
+export default function CedulaPhotoButton({ onRun, onBeforeCapture, disabled }) {
   const inputRef = useRef(null);
   const { status, readFile } = useCedulaPhoto(onRun);
 
@@ -21,7 +21,11 @@ export default function CedulaPhotoButton({ onRun, disabled }) {
         type="button"
         className="button"
         disabled={disabled || status === "reading"}
-        onClick={() => inputRef.current?.click()}
+        onClick={() => {
+          // Con la cámara en vivo abierta se acumula memoria y el teléfono puede cerrar la página
+          onBeforeCapture?.();
+          inputRef.current?.click();
+        }}
       >
         {status === "reading" ? labels.delivery.readingPhoto : labels.delivery.takePhoto}
       </button>
