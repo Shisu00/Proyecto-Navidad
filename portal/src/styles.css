@@ -392,7 +392,7 @@ fieldset {
 .shell-tools,
 .shell-main {
   width: 100%;
-  max-width: 68rem;
+  max-width: 96rem;
   margin: 0 auto;
   padding-inline: 1rem;
 }
@@ -479,12 +479,12 @@ fieldset {
 /* Contenido con barra lateral opcional */
 .shell-body {
   width: 100%;
-  max-width: 68rem;
+  max-width: 96rem;
   margin: 0 auto;
 }
 
 .shell-body.has-side {
-  max-width: 82rem;
+  max-width: 96rem;
 }
 
 .shell-body .shell-main {
