@@ -12,6 +12,8 @@ import Dashboard from "./Dashboard.jsx";
 import DeliveryView from "./DeliveryView.jsx";
 import InscriptionForm from "./InscriptionForm.jsx";
 import InscriptionList from "./InscriptionList.jsx";
+import MobileNav from "./MobileNav.jsx";
+import MobileTopBar from "./MobileTopBar.jsx";
 import Notice from "./Notice.jsx";
 import ReportsView from "./ReportsView.jsx";
 import RolesAdmin from "./RolesAdmin.jsx";
@@ -74,6 +76,14 @@ export default function AppShell() {
 
   return (
     <div className="shell">
+      <MobileTopBar
+        fullName={profile?.full_name}
+        campaigns={catalogs.campaigns}
+        selectedCampaignId={catalogs.selectedCampaign?.id ?? ""}
+        onSelectCampaign={catalogs.selectCampaign}
+        onSignOut={() => signOut()}
+      />
+
       <header className="shell-header">
         <div className="shell-bar">
           <div className="shell-title">
@@ -152,6 +162,13 @@ export default function AppShell() {
           )}
         </main>
       </div>
+
+      <MobileNav
+        topItems={topItems}
+        sideItems={sideItems}
+        activeView={activeView}
+        onNavigate={setView}
+      />
     </div>
   );
 }

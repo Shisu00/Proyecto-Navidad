@@ -3,18 +3,26 @@ import { labels } from "./labels.js";
 // La navegación se gobierna con permisos, nunca con nombres de rol.
 // Barra superior: el trabajo diario. Barra lateral: administración, análisis y control.
 export const TOP_NAV_ITEMS = Object.freeze([
-  { key: "dashboard", label: labels.nav.dashboard, isVisible: () => true },
+  { key: "dashboard", label: labels.nav.dashboard, icon: "chart", isVisible: () => true },
   {
     key: "newInscription",
     label: labels.nav.newInscription,
+    shortLabel: labels.nav.newInscriptionShort,
+    icon: "plus",
     isVisible: (can) => can("inscription.create"),
   },
   {
     key: "inscriptions",
     label: labels.nav.inscriptions,
+    icon: "list",
     isVisible: (can) => can("inscription.read_own_council") || can("inscription.read_all"),
   },
-  { key: "delivery", label: labels.nav.delivery, isVisible: (can) => can("delivery.confirm") },
+  {
+    key: "delivery",
+    label: labels.nav.delivery,
+    icon: "gift",
+    isVisible: (can) => can("delivery.confirm"),
+  },
 ]);
 
 export const SIDE_NAV_ITEMS = Object.freeze([

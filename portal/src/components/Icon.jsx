@@ -13,6 +13,16 @@ const SHAPES = {
     </>
   ),
   pencil: <path d="M4 20h4L19 9l-4-4L4 16v4z" />,
+  chart: <path d="M4 20V10M10 20V4M16 20v-7M22 20H2" />,
+  plus: <path d="M12 5v14M5 12h14" />,
+  list: <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />,
+  gift: (
+    <>
+      <rect x="3" y="8" width="18" height="13" rx="2" />
+      <path d="M12 8v13M3 13h18M12 8c-2-4-6-3-5 0M12 8c2-4 6-3 5 0" />
+    </>
+  ),
+  menu: <path d="M4 7h16M4 12h16M4 17h16" />,
   review: (
     <>
       <rect x="5" y="4" width="14" height="17" rx="2" />
