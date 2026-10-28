@@ -1188,3 +1188,26 @@ fieldset {
   background: currentColor;
   opacity: 0.75;
 }
+
+.scanner-frame {
+  position: relative;
+}
+
+.scanner-frame .scanner-video {
+  display: block;
+}
+
+.scanner-guide {
+  position: absolute;
+  inset: 20% 18%;
+  border: 2px dashed rgba(255, 255, 255, 0.85);
+  border-radius: var(--radius);
+  pointer-events: none;
+}
+
+.scanner-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 0.75rem;
+}

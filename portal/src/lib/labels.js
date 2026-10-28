@@ -566,9 +566,20 @@ export const labels = {
     searchHint: "Escribe al menos 3 caracteres o escanea la cédula.",
     search: "Buscar",
     scan: "Escanear cédula",
-    scanUnsupported: "Este navegador no puede leer la cédula con la cámara: ingresa el RUN a mano.",
+    scanUnsupported:
+      "Este navegador no puede abrir la cámara en vivo: toma una foto de la cédula o ingresa el RUN a mano.",
     scanStarting: "Abriendo la cámara…",
-    scanning: "Apunta la cámara al código de la cédula.",
+    scanning: "Apunta la cámara al código QR del reverso de la cédula.",
+    scanTips:
+      "Deja el código a unos 15 a 20 cm y quieto. Si se ve borroso, toca la imagen para enfocar o aleja un poco la cédula. Evita reflejos. Si no lee, usa Tomar foto.",
+    zoom: "Zoom",
+    refocus: "Enfocar",
+    torchOn: "Encender linterna",
+    torchOff: "Apagar linterna",
+    takePhoto: "Tomar foto de la cédula",
+    readingPhoto: "Leyendo la foto…",
+    photoUnreadable:
+      "No pudimos leer el código de la foto. Acércate para que el código ocupe buena parte de la imagen, con buena luz y sin reflejos, o ingresa el RUN a mano.",
     stopScan: "Cerrar cámara",
     unreadableCode:
       "Se leyó un código, pero no trae un RUN válido. Acerca la cédula, evita reflejos y prueba por el lado del código QR o de barras.",

@@ -7,6 +7,7 @@ import { formatIdNumber, normalizeIdNumber } from "../lib/identification.js";
 import { errorMessage, labels } from "../lib/labels.js";
 import ConfirmDeliveryDialog from "./ConfirmDeliveryDialog.jsx";
 import DeliveryRow from "./DeliveryRow.jsx";
+import CedulaPhotoButton from "./CedulaPhotoButton.jsx";
 import DeliveryScanner from "./DeliveryScanner.jsx";
 import Field from "./Field.jsx";
 import Notice from "./Notice.jsx";
@@ -121,6 +122,7 @@ export default function DeliveryView() {
               {labels.delivery.scan}
             </button>
           ) : null}
+          <CedulaPhotoButton onRun={handleScanned} disabled={!isDeliveryOpen} />
         </div>
       </form>
 

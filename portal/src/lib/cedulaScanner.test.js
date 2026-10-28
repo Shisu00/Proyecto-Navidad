@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { extractRun } from "./cedulaScanner.js";
+import { extractRun, firstRun } from "./cedulaScanner.js";
 
 describe("extractRun", () => {
   it("lee el RUN del parámetro de la URL del QR", () => {
@@ -19,5 +19,18 @@ describe("extractRun", () => {
     expect(extractRun("RUN=12345678-9")).toBeNull();
     expect(extractRun("sin datos")).toBeNull();
     expect(extractRun(undefined)).toBeNull();
+  });
+});
+
+describe("firstRun", () => {
+  it("devuelve el primer texto con un RUN válido", () => {
+    expect(firstRun(["otro código", "https://x.cl/docstatus?RUN=12345678-5&type=CEDULA"])).toBe(
+      "123456785",
+    );
+  });
+
+  it("devuelve null si ningún texto trae un RUN válido", () => {
+    expect(firstRun(["abc", "RUN=12345678-9"])).toBeNull();
+    expect(firstRun([])).toBeNull();
   });
 });

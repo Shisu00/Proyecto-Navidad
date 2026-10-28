@@ -1,6 +1,8 @@
 import { isValidRut, normalizeRut } from "./rut.js";
+import { decodeWithZxing } from "./zxingDecoder.js";
 
 export const SCAN_FORMATS = Object.freeze(["qr_code", "pdf417"]);
+const PHOTO_MAX_SIDES = Object.freeze([2800, 1600]);
 
 // QR de la cédula nueva: URL con ?RUN=NNNNNNNN-D. PDF417 y otros: patrón NNNNNNNN-D
 const RUN_PARAM = /[?&]RUN=(\d{7,8}-?[\dkK])/i;
@@ -25,17 +27,62 @@ export function extractRun(rawValue) {
   return isValidRut(run) ? run : null;
 }
 
+// Cámara en vivo: necesita acceso a la cámara, pero ya no depende de BarcodeDetector
 export function isScannerSupported() {
-  return (
-    typeof globalThis.BarcodeDetector === "function" &&
-    Boolean(globalThis.navigator?.mediaDevices?.getUserMedia)
-  );
+  return Boolean(globalThis.navigator?.mediaDevices?.getUserMedia);
 }
 
 // Si un solo formato no está soportado el constructor falla: se filtra de antemano
-export async function createDetector() {
-  const supported = (await globalThis.BarcodeDetector.getSupportedFormats?.()) ?? SCAN_FORMATS;
-  const formats = SCAN_FORMATS.filter((format) => supported.includes(format));
-  if (formats.length === 0) throw new Error("NO_SUPPORTED_FORMATS");
-  return new globalThis.BarcodeDetector({ formats });
+async function createNativeDetector() {
+  if (typeof globalThis.BarcodeDetector !== "function") return null;
+  try {
+    const supported = (await globalThis.BarcodeDetector.getSupportedFormats?.()) ?? SCAN_FORMATS;
+    const formats = SCAN_FORMATS.filter((format) => supported.includes(format));
+    return formats.length > 0 ? new globalThis.BarcodeDetector({ formats }) : null;
+  } catch {
+    return null;
+  }
+}
+
+// Lector de códigos: primero el del navegador (rápido) y, si no encuentra nada, ZXing.
+// read() devuelve los textos leídos; extractRun decide cuál trae un RUN válido.
+export async function createCodeReader() {
+  const native = await createNativeDetector();
+  return {
+    async read(source, { maxSide = 1920, useFallback = true } = {}) {
+      if (native) {
+        try {
+          const codes = await native.detect(source);
+          if (codes.length > 0) return codes.map((code) => code.rawValue);
+        } catch {
+          // El detector falla mientras la cámara aún no entrega imagen: se prueba el respaldo
+        }
+      }
+      return useFallback ? decodeWithZxing(source, { maxSide }) : [];
+    },
+  };
+}
+
+export function firstRun(values) {
+  for (const value of values) {
+    const run = extractRun(value);
+    if (run) return run;
+  }
+  return null;
+}
+
+// Foto tomada con la cámara del teléfono: se prueba a dos escalas porque el tamaño ideal
+// depende de cuánto ocupe el código en la imagen
+export async function readRunFromImage(file) {
+  const reader = await createCodeReader();
+  const bitmap = await createImageBitmap(file);
+  try {
+    for (const maxSide of PHOTO_MAX_SIDES) {
+      const run = firstRun(await reader.read(bitmap, { maxSide }));
+      if (run) return run;
+    }
+    return null;
+  } finally {
+    bitmap.close();
+  }
 }

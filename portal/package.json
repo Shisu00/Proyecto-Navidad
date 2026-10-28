@@ -13,6 +13,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@zxing/library": "0.21.3",
     "@supabase/supabase-js": "2.50.0",
     "react": "19.1.0",
     "react-dom": "19.1.0"
